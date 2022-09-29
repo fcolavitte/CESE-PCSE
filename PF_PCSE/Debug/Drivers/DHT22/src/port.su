@@ -1,4 +1,3 @@
-../Drivers/DHT22/src/port.c:23:6:GPIO_set_config	16	static
-../Drivers/DHT22/src/port.c:28:6:GPIO_set_mode	16	static
-../Drivers/DHT22/src/port.c:34:6:GPIO_write	16	static
-../Drivers/DHT22/src/port.c:39:8:GPIO_read	16	static
+../Drivers/DHT22/src/port.c:22:6:GPIO_set_config	40	static
+../Drivers/DHT22/src/port.c:47:6:GPIO_write	24	static
+../Drivers/DHT22/src/port.c:61:8:GPIO_read	16	static

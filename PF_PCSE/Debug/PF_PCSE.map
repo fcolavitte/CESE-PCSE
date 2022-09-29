@@ -1021,36 +1021,115 @@ Discarded input sections
  .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
  .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
  .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
+ .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
  .text          0x0000000000000000        0x0 ./Drivers/DHT22/src/port.o
  .data          0x0000000000000000        0x0 ./Drivers/DHT22/src/port.o
  .bss           0x0000000000000000        0x0 ./Drivers/DHT22/src/port.o
  .text.GPIO_set_config
-                0x0000000000000000       0x1c ./Drivers/DHT22/src/port.o
- .text.GPIO_set_mode
-                0x0000000000000000       0x1c ./Drivers/DHT22/src/port.o
+                0x0000000000000000       0x48 ./Drivers/DHT22/src/port.o
  .text.GPIO_write
-                0x0000000000000000       0x1c ./Drivers/DHT22/src/port.o
+                0x0000000000000000       0x4c ./Drivers/DHT22/src/port.o
  .text.GPIO_read
-                0x0000000000000000       0x18 ./Drivers/DHT22/src/port.o
- .debug_info    0x0000000000000000      0x1ac ./Drivers/DHT22/src/port.o
- .debug_abbrev  0x0000000000000000       0xbf ./Drivers/DHT22/src/port.o
+                0x0000000000000000       0x34 ./Drivers/DHT22/src/port.o
+ .debug_info    0x0000000000000000      0x306 ./Drivers/DHT22/src/port.o
+ .debug_abbrev  0x0000000000000000      0x19b ./Drivers/DHT22/src/port.o
  .debug_aranges
-                0x0000000000000000       0x38 ./Drivers/DHT22/src/port.o
- .debug_ranges  0x0000000000000000       0x28 ./Drivers/DHT22/src/port.o
- .debug_macro   0x0000000000000000      0x1a8 ./Drivers/DHT22/src/port.o
+                0x0000000000000000       0x30 ./Drivers/DHT22/src/port.o
+ .debug_ranges  0x0000000000000000       0x38 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x3aa ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000      0xa90 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x2b8 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x28 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x28 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x22 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x8e ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x51 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x103 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x6a ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x1df ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x1c ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x22 ./Drivers/DHT22/src/port.o
- .debug_macro   0x0000000000000000       0x4c ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0xd9 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000     0x102d ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x11f ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000    0x17f91 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x6d ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000     0x36dd ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x174 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x5c ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0xca5 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x9fe ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x116 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x157 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0xa5 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x287 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x5f ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x236 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x20f ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x1f ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x1d2 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0xccf ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x132 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x41d ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x2e ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x582 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x1b5 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x22 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0xd6 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x198 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0xd6 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x11a ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0xe2 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x89 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x295 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x134 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x22 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x52 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x1e ./Drivers/DHT22/src/port.o
- .debug_macro   0x0000000000000000       0x94 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x3c ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x34 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x16 ./Drivers/DHT22/src/port.o
- .debug_macro   0x0000000000000000       0x57 ./Drivers/DHT22/src/port.o
- .debug_macro   0x0000000000000000       0x97 ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000       0x35 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000      0x341 ./Drivers/DHT22/src/port.o
- .debug_macro   0x0000000000000000       0xfd ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x10 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x16 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x43 ./Drivers/DHT22/src/port.o
@@ -1061,7 +1140,6 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0x1c ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000      0x12a ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x10 ./Drivers/DHT22/src/port.o
- .debug_macro   0x0000000000000000       0x6a ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x1c ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x52 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x22 ./Drivers/DHT22/src/port.o
@@ -1072,10 +1150,10 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0x3d ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x16 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000      0x145 ./Drivers/DHT22/src/port.o
- .debug_line    0x0000000000000000      0x592 ./Drivers/DHT22/src/port.o
- .debug_str     0x0000000000000000     0x73ee ./Drivers/DHT22/src/port.o
+ .debug_line    0x0000000000000000      0xacc ./Drivers/DHT22/src/port.o
+ .debug_str     0x0000000000000000    0xdea55 ./Drivers/DHT22/src/port.o
  .comment       0x0000000000000000       0x51 ./Drivers/DHT22/src/port.o
- .debug_frame   0x0000000000000000       0xb0 ./Drivers/DHT22/src/port.o
+ .debug_frame   0x0000000000000000       0x7c ./Drivers/DHT22/src/port.o
  .ARM.attributes
                 0x0000000000000000       0x34 ./Drivers/DHT22/src/port.o
  .group         0x0000000000000000        0xc ./Drivers/STM32F4xx_HAL_Driver/Src/Legacy/stm32f4xx_hal_can.o
