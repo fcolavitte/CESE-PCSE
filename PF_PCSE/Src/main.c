@@ -1,19 +1,15 @@
 /*******************************************************************************
 *
-* 	CESE 18 - PdM
+* 	CESE 18 - PCSE
 * 	Facundo Colavitte
 *
-* 	Práctica 5 - Punto 2
-*
-* 	Utilizando módulos para comunicación UART,
-* 	avisar la detección de flancos ascendentes y descendentes del pulsador
 *
 *******************************************************************************/
 
 #include "main.h"
-#include "API_uart.h"
-#include "API_debounce.h"
 #include <stdbool.h>
+#include <stdint.h>
+#include "stm32f4xx_hal_tim.h"
 
 
 
@@ -22,8 +18,8 @@
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 
-
 //Global Variables
+
 
 
 int main(void) {
@@ -34,32 +30,17 @@ int main(void) {
   BSP_LED_Init(LED2);
   BSP_LED_Init(LED3);
 
-  /*Inicializar Pulsador*/
-  BSP_PB_Init(BUTTON_USER, BUTTON_MODE_GPIO);	//Iniciar Pulsador
-  debounceFSM_init();	//Iniciar estado del botón
 
-  /*Inicializar UART*/
-  if(uartInit()==0){
-	  while (1) {
-		  /*Control de Error*/
-		  BSP_LED_Toggle(LED3);
-		  HAL_Delay(1000);
-	  }
-  }
+
 
   while (1) {
-	  debounceFSM_update();
-	  if(readFlancoAscendente()){
-		  uartSendString("Flanco ascendente detectado\r\n");
-	  }
-	  if(readFlancoDescendente()){
-		  uartSendString("Flanco descendente detectado\r\n");
-	  }
-	  if(readKey()){
-	  		  BSP_LED_Toggle(LED2);
-	  }
   }
 }
+
+
+
+
+
 
 
 

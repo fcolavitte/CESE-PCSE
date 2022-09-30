@@ -1,0 +1,8 @@
+../Drivers/DHT22/src/DHT22.c:23:15:is_pin	16	static
+../Drivers/DHT22/src/DHT22.c:32:6:DHT22_init	16	static
+../Drivers/DHT22/src/DHT22.c:49:7:DHT22_get_temp	24	static
+../Drivers/DHT22/src/DHT22.c:65:11:DHT22_get_temp_string	16	static
+../Drivers/DHT22/src/DHT22.c:75:7:DHT22_get_hum	24	static
+../Drivers/DHT22/src/DHT22.c:91:11:DHT22_get_hum_string	16	static
+../Drivers/DHT22/src/DHT22.c:101:13:tomar_lectura	16	static
+../Drivers/DHT22/src/DHT22.c:122:13:decodificar	16	static
