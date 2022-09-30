@@ -1170,6 +1170,12 @@ Discarded input sections
  .text          0x0000000000000000        0x0 ./Drivers/DHT22/src/DHT22.o
  .data          0x0000000000000000        0x0 ./Drivers/DHT22/src/DHT22.o
  .bss           0x0000000000000000        0x0 ./Drivers/DHT22/src/DHT22.o
+ .rodata.T_Low  0x0000000000000000        0x2 ./Drivers/DHT22/src/DHT22.o
+ .rodata.T_1_High
+                0x0000000000000000        0x2 ./Drivers/DHT22/src/DHT22.o
+ .rodata.T_1    0x0000000000000000        0x2 ./Drivers/DHT22/src/DHT22.o
+ .bss.string_uint
+                0x0000000000000000        0xb ./Drivers/DHT22/src/DHT22.o
  .text.is_pin   0x0000000000000000       0x16 ./Drivers/DHT22/src/DHT22.o
  .text.DHT22_init
                 0x0000000000000000       0x62 ./Drivers/DHT22/src/DHT22.o
@@ -1182,14 +1188,16 @@ Discarded input sections
  .text.DHT22_get_hum_string
                 0x0000000000000000       0x1a ./Drivers/DHT22/src/DHT22.o
  .text.tomar_lectura
-                0x0000000000000000       0x52 ./Drivers/DHT22/src/DHT22.o
+                0x0000000000000000       0x80 ./Drivers/DHT22/src/DHT22.o
  .text.decodificar
-                0x0000000000000000       0x14 ./Drivers/DHT22/src/DHT22.o
- .debug_info    0x0000000000000000      0x338 ./Drivers/DHT22/src/DHT22.o
- .debug_abbrev  0x0000000000000000      0x174 ./Drivers/DHT22/src/DHT22.o
+                0x0000000000000000      0x12a ./Drivers/DHT22/src/DHT22.o
+ .text.uint_to_string
+                0x0000000000000000       0xb0 ./Drivers/DHT22/src/DHT22.o
+ .debug_info    0x0000000000000000      0x50b ./Drivers/DHT22/src/DHT22.o
+ .debug_abbrev  0x0000000000000000      0x1a4 ./Drivers/DHT22/src/DHT22.o
  .debug_aranges
-                0x0000000000000000       0x58 ./Drivers/DHT22/src/DHT22.o
- .debug_ranges  0x0000000000000000       0x48 ./Drivers/DHT22/src/DHT22.o
+                0x0000000000000000       0x60 ./Drivers/DHT22/src/DHT22.o
+ .debug_ranges  0x0000000000000000       0x50 ./Drivers/DHT22/src/DHT22.o
  .debug_macro   0x0000000000000000      0x1b2 ./Drivers/DHT22/src/DHT22.o
  .debug_macro   0x0000000000000000      0xa90 ./Drivers/DHT22/src/DHT22.o
  .debug_macro   0x0000000000000000       0x22 ./Drivers/DHT22/src/DHT22.o
@@ -1225,10 +1233,10 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0x3d ./Drivers/DHT22/src/DHT22.o
  .debug_macro   0x0000000000000000       0x16 ./Drivers/DHT22/src/DHT22.o
  .debug_macro   0x0000000000000000      0x145 ./Drivers/DHT22/src/DHT22.o
- .debug_line    0x0000000000000000      0x6ca ./Drivers/DHT22/src/DHT22.o
- .debug_str     0x0000000000000000     0x7485 ./Drivers/DHT22/src/DHT22.o
+ .debug_line    0x0000000000000000      0x842 ./Drivers/DHT22/src/DHT22.o
+ .debug_str     0x0000000000000000     0x7539 ./Drivers/DHT22/src/DHT22.o
  .comment       0x0000000000000000       0x51 ./Drivers/DHT22/src/DHT22.o
- .debug_frame   0x0000000000000000      0x138 ./Drivers/DHT22/src/DHT22.o
+ .debug_frame   0x0000000000000000      0x15c ./Drivers/DHT22/src/DHT22.o
  .ARM.attributes
                 0x0000000000000000       0x34 ./Drivers/DHT22/src/DHT22.o
  .group         0x0000000000000000        0xc ./Drivers/DHT22/src/port.o
@@ -1310,6 +1318,8 @@ Discarded input sections
  .text          0x0000000000000000        0x0 ./Drivers/DHT22/src/port.o
  .data          0x0000000000000000        0x0 ./Drivers/DHT22/src/port.o
  .bss           0x0000000000000000        0x0 ./Drivers/DHT22/src/port.o
+ .bss._DHT22    0x0000000000000000       0x74 ./Drivers/DHT22/src/port.o
+ .bss.i         0x0000000000000000        0x1 ./Drivers/DHT22/src/port.o
  .bss.hTim2     0x0000000000000000       0x48 ./Drivers/DHT22/src/port.o
  .bss.T_Low     0x0000000000000000        0x4 ./Drivers/DHT22/src/port.o
  .bss.T_High    0x0000000000000000        0x4 ./Drivers/DHT22/src/port.o
@@ -1324,7 +1334,7 @@ Discarded input sections
  .text.GPIO_read
                 0x0000000000000000       0x34 ./Drivers/DHT22/src/port.o
  .text.HAL_GPIO_EXTI_Callback
-                0x0000000000000000       0x20 ./Drivers/DHT22/src/port.o
+                0x0000000000000000       0x16 ./Drivers/DHT22/src/port.o
  .text.Timer_Init
                 0x0000000000000000       0x48 ./Drivers/DHT22/src/port.o
  .text.HAL_TIM_Base_Init
@@ -1335,12 +1345,12 @@ Discarded input sections
                 0x0000000000000000       0x14 ./Drivers/DHT22/src/port.o
  .text.TIM_Base_SetConfig
                 0x0000000000000000      0x140 ./Drivers/DHT22/src/port.o
- .debug_info    0x0000000000000000      0xb2e ./Drivers/DHT22/src/port.o
- .debug_abbrev  0x0000000000000000      0x28b ./Drivers/DHT22/src/port.o
+ .debug_info    0x0000000000000000      0xba1 ./Drivers/DHT22/src/port.o
+ .debug_abbrev  0x0000000000000000      0x29e ./Drivers/DHT22/src/port.o
  .debug_aranges
                 0x0000000000000000       0x70 ./Drivers/DHT22/src/port.o
  .debug_ranges  0x0000000000000000       0x78 ./Drivers/DHT22/src/port.o
- .debug_macro   0x0000000000000000      0x3bd ./Drivers/DHT22/src/port.o
+ .debug_macro   0x0000000000000000      0x3c7 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000      0xa90 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000      0x2b8 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x28 ./Drivers/DHT22/src/port.o
@@ -1417,8 +1427,8 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0x3d ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000       0x16 ./Drivers/DHT22/src/port.o
  .debug_macro   0x0000000000000000      0x145 ./Drivers/DHT22/src/port.o
- .debug_line    0x0000000000000000      0xcd5 ./Drivers/DHT22/src/port.o
- .debug_str     0x0000000000000000    0xe5ff1 ./Drivers/DHT22/src/port.o
+ .debug_line    0x0000000000000000      0xd41 ./Drivers/DHT22/src/port.o
+ .debug_str     0x0000000000000000    0xe603f ./Drivers/DHT22/src/port.o
  .comment       0x0000000000000000       0x51 ./Drivers/DHT22/src/port.o
  .debug_frame   0x0000000000000000      0x19c ./Drivers/DHT22/src/port.o
  .ARM.attributes

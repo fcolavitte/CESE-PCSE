@@ -7,6 +7,7 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_gpio.h"
 #include "stm32f4xx_hal_tim.h"
+#include "DHT22.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -18,7 +19,8 @@
 typedef bool bool_t;
 
 
-
+DHT22_sensor _DHT22;
+uint8_t i = 0;	/*Contador para recorrer T_Array de _DHT22*/
 
 
 /*Functions timer ------------------------------------------------------------------------*/
@@ -138,11 +140,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	   * Asignar a variable el tiempo del PIN en alto o en bajo
 	   * Ver estado del PIN para definir si fue flanco ascendente o descendente
 	   */
-	  if(__HAL_GPIO_EXTI_GET_IT(GPIO_Pin)){
+	  /*if(__HAL_GPIO_EXTI_GET_IT(GPIO_Pin)){
 		  //flanco_ascendente();
 	  } else{
 		  //flanco_descendente();
-	  }
+	  }*/
+	//_DHT22->T_Array[i] = tiempo del temporizador
+	//resetear temporizador
+	//i++;
 
 }
 
