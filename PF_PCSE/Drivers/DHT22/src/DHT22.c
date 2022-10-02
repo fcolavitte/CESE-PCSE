@@ -5,37 +5,41 @@
  *      Author: Facundo Colavitte
  */
 #include "DHT22.h"
+#include "API_uart.h"
+
 
 static const uint16_t T_Low = 50;	//us
 static const uint16_t T_1_High = 70;	//us
-//static const uint16_t T_0_High = 25;	//us
 static const uint16_t T_1 = T_Low + T_1_High;	//us
-//static const uint16_t T_0 = T_Low + T_0_High;	//us
 
 
 
-/*Functions ---------------------------------------------------------------------*/
+/*Extern functions -------------------------------------------------------------*/
 extern uint32_t tiempo_actual(void);
-extern void GPIO_set_config(uint8_t GPIO_port, uint8_t GPIO_num);
+extern void GPIO_set_config(uint8_t * GPIO_port, uint8_t GPIO_num);
 extern void delay_ms(uint32_t delay);
-extern void GPIO_write(uint8_t GPIO_port, uint8_t GPIO_num, bool_t GPIO_state);
+extern void GPIO_write(uint8_t * GPIO_port, uint8_t GPIO_num, bool_t GPIO_state);
+extern void reset_timer();
+extern bool_t is_pin(DHT22_sensor * DHT22_struct);
+
+/*Functions --------------------------------------------------------------------*/
+void DHT22_init(DHT22_sensor * DHT22_struct);
+float DHT22_get_temp(DHT22_sensor * DHT22_struct);
+uint8_t * DHT22_get_temp_string(DHT22_sensor * DHT22_struct);
+float DHT22_get_hum(DHT22_sensor * DHT22_struct);
+uint8_t * DHT22_get_hum_string(DHT22_sensor * DHT22_struct);
 static void tomar_lectura(DHT22_sensor * DHT22_struct);
 static void decodificar(DHT22_sensor * DHT22_struct);
-static uint8_t *uint_to_string(uint32_t numero);
+uint8_t *uint_to_string(uint32_t numero);
+
+
 
 /*Variables Globales ------------------------------------------------------------*/
 extern DHT22_sensor _DHT22;
 static uint8_t string_uint[11];
 
 
-/*
- * @brief	Verifica si el pin del DHT es válido en la placa
- * @param	Puntero a estructura del DHT22
- * @return	None
- */
-static bool_t is_pin(DHT22_sensor * DHT22_struct){
-	return 1;
-}
+
 
 /*
  * @brief	Inicializa el DHT22 con los valores de la estructura cargada
@@ -46,11 +50,13 @@ void DHT22_init(DHT22_sensor * DHT22_struct){
 	if(is_pin(DHT22_struct)){	/*Si el PIN es válido*/
 		DHT22_struct->data.temp = 0;
 		DHT22_struct->data.temp_string[0] = '\0';
-		DHT22_struct->data.hum = 0;
-		DHT22_struct->data.hum_string[0] = '\0';
+		DHT22_struct->data.hum  = 0;
+		DHT22_struct->data.hum_string[0]  = '\0';
 		DHT22_struct->time_last_call = 0;
 		GPIO_set_config(DHT22_struct->Port, DHT22_struct->Pin);
+
 		GPIO_write(DHT22_struct->Port, DHT22_struct->Pin, 1);
+		tomar_lectura(DHT22_struct);
 	}
 }
 
@@ -61,12 +67,10 @@ void DHT22_init(DHT22_sensor * DHT22_struct){
  */
 float DHT22_get_temp(DHT22_sensor * DHT22_struct){
 	float temp=0;
-	if(is_pin(DHT22_struct)){
-		if(tiempo_actual() - DHT22_struct->time_last_call > 2000){
-			tomar_lectura(DHT22_struct);
-		}
-		temp = DHT22_struct->data.temp;
+	if(tiempo_actual() - DHT22_struct->time_last_call > 2000){
+		tomar_lectura(DHT22_struct);
 	}
+	temp = DHT22_struct->data.temp;
 	return temp;
 }
 
@@ -87,12 +91,10 @@ uint8_t * DHT22_get_temp_string(DHT22_sensor * DHT22_struct){
  */
 float DHT22_get_hum(DHT22_sensor * DHT22_struct){
 	float hum=0;
-	if(is_pin(DHT22_struct)){
-		if(tiempo_actual() - DHT22_struct->time_last_call > 2000){
-			tomar_lectura(DHT22_struct);
-		}
-		hum = DHT22_struct->data.temp;
+	if(tiempo_actual() - DHT22_struct->time_last_call > 2000){
+		tomar_lectura(DHT22_struct);
 	}
+	hum = DHT22_struct->data.temp;
 	return hum;
 }
 
@@ -113,26 +115,33 @@ uint8_t * DHT22_get_hum_string(DHT22_sensor * DHT22_struct){
  */
 static void tomar_lectura(DHT22_sensor * DHT22_struct){
 	if(is_pin(DHT22_struct)){
-
 		/*
-		 *
 		 * Ver de hacer por interrupción
-		 *
 		 */
 
-		DHT22_struct->time_last_call = tiempo_actual();
+		reset_timer();
 		GPIO_write(DHT22_struct->Port, DHT22_struct->Pin, 0);
-		delay_ms(1);	/*Delay 1ms*/
+		uartSendString(uint_to_string(GPIO_read(DHT22_struct->Port, DHT22_struct->Pin)));
+		delay_ms(2);
+		reset_timer();
 		GPIO_write(DHT22_struct->Port, DHT22_struct->Pin, 1);
-		//Activar Timer y poner a cero
-		delay_ms(7);	/*Delay 1ms para que se realice la transmisión*/
+		uartSendString(uint_to_string(GPIO_read(DHT22_struct->Port, DHT22_struct->Pin)));
+		delay_ms(7);	/*Delay 7ms para que se realice la transmisión*/
+
 		//Apagar Timer
+
+		//uartSendString("\r\nT_Array:\r\n");
 		for(uint8_t i=0;i<85;i++){
 			DHT22_struct->T_Array[i] = _DHT22.T_Array[i];
+			//uartSendString(uint_to_string(DHT22_struct->T_Array[i]));
+			//uartSendString("-");
 		}
-		decodificar(DHT22_struct);
+		uartSendString("\r\n");
+		//decodificar(DHT22_struct);
+		DHT22_struct->time_last_call = tiempo_actual();
 	}
 }
+
 
 /*
  * @brief	Traduce los tiempos guardados en el array T_Array[85] y guarda los datos en la sub-estructura data
@@ -168,12 +177,18 @@ static void decodificar(DHT22_sensor * DHT22_struct){
 }
 
 
-static uint8_t *uint_to_string(uint32_t numero){
+/*
+ * @brief	Convierte entero a string
+ * @param	Número a convertir
+ * @return	Número en formato string
+ */
+uint8_t * uint_to_string(uint32_t numero){
 	uint32_t divisor;
 	uint8_t Exp_divisor;
 	uint32_t digito;
 	uint8_t i = 0;	/*Posición en el string*/
 	bool_t  start_num = 0;	/*Var aux para eliminar 0's a izquierda del dígito significativo*/
+	string_uint[0]='\0';
 	for(uint8_t posicion=0 ; posicion<10 ; posicion++){
 		Exp_divisor = 9 - posicion;
 
@@ -188,6 +203,10 @@ static uint8_t *uint_to_string(uint32_t numero){
 			string_uint[i++] = digito + '0';
 			start_num = 1;
 		}
+	}
+	if(string_uint[0]=='\0'){
+		string_uint[0]='0';
+		i=1;
 	}
 	string_uint[i] = '\0';
 	return string_uint;

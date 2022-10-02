@@ -7,54 +7,40 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_gpio.h"
 #include "stm32f4xx_hal_tim.h"
+#include "stm32f429xx.h"
 #include "DHT22.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
+#include "API_uart.h"
 
 
-#define PIN_DHT22		GPIO_PIN_2 	/*Número de Pin del puerto al que se conectó DHT22. De 0 a 15*/
-#define PORT_PIN_DHT22	GPIOA		/*Puerto al que pertenece el pin que conecta con el DHT22*/
+/*Functions GPIO ------------------------------------------------------------------------*/
+void GPIO_set_config(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num);
+void GPIO_write(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num, bool_t GPIO_state);
+bool_t GPIO_read(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num);
+bool_t is_pin(uint16_t GPIO_num);
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
-typedef bool bool_t;
-
-
-DHT22_sensor _DHT22;
-uint8_t i = 0;	/*Contador para recorrer T_Array de _DHT22*/
-
-
-/*Functions timer ------------------------------------------------------------------------*/
+/*Functions time & timer ----------------------------------------------------------------*/
+void reset_timer(void);
+uint32_t tiempo_actual(void);
+void delay_ms(uint32_t delay);
 void Timer_Init(void);
 HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim);
 HAL_StatusTypeDef HAL_TIM_Base_Start(TIM_HandleTypeDef *htim);
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim);
 void TIM_Base_SetConfig(TIM_TypeDef *TIMx, TIM_Base_InitTypeDef *Structure);
 
-/*Variables timer -----------------------------------------------------------------------*/
-TIM_HandleTypeDef hTim2;
-
-/*Orden para activar TIMER --------------------------------------------------------------*/
-//__TIM2_CLK_ENABLE();
-//Timer_Init();
-//uint32_t count = __HAL_TIM_GetCounter(&hTim2);
+/*Variables -----------------------------------------------------------------------*/
+TIM_HandleTypeDef hTim2;		/*Handler para Timer2*/
+DHT22_sensor _DHT22;			/*Sensor DHT22 en que se está realizando la lectura*/
+uint8_t T_Array_counter = 0;	/*Contador para recorrer T_Array de _DHT22*/
 
 
 
 
-
-
-uint32_t T_Low;	/*Tiempo en us del PIN en bajo*/
-uint32_t T_High;/*Tiempo en us del PIN en alto*/
-
-
-uint32_t tiempo_actual(void){
-	return HAL_GetTick();
-}
-
-void delay_ms(uint32_t delay){
-	HAL_Delay(delay);
-}
-
+/*---------------------------------------------------- GPIO -------------------------------------------------------*/
 
 /*
  * @brief	Configurar GPIO para comunicación con DHT22
@@ -62,30 +48,36 @@ void delay_ms(uint32_t delay){
  * @return	None
  * @note	GPIO modo salida (permite leer PIN), open-drain con interrupciones por flanco ascendente y descendente
  */
-void GPIO_set_config(uint8_t GPIO_port, uint8_t GPIO_num){
-	/*
-	 * Verificar que el pin solicitado pertenezca al hardware
-	 */
+void GPIO_set_config(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num){
+	if(is_pin(GPIO_num)){
+		//Preparar configuración PIN
+		GPIO_InitTypeDef PIN_DHT22_config;
+
+		if(GPIOA == GPIO_port){__HAL_RCC_GPIOA_CLK_ENABLE();}
+		if(GPIOB == GPIO_port){__HAL_RCC_GPIOB_CLK_ENABLE();}
+		if(GPIOC == GPIO_port){__HAL_RCC_GPIOC_CLK_ENABLE();}
+		if(GPIOD == GPIO_port){__HAL_RCC_GPIOD_CLK_ENABLE();}
+		if(GPIOE == GPIO_port){__HAL_RCC_GPIOE_CLK_ENABLE();}
+		if(GPIOF == GPIO_port){__HAL_RCC_GPIOF_CLK_ENABLE();}
+		if(GPIOG == GPIO_port){__HAL_RCC_GPIOG_CLK_ENABLE();}
 
 
+		PIN_DHT22_config.Pin = GPIO_num;
+		PIN_DHT22_config.Mode = MODE_OUTPUT | OUTPUT_OD | EXTI_IT | TRIGGER_FALLING;
+		PIN_DHT22_config.Pull = GPIO_PULLUP;
+		PIN_DHT22_config.Speed = GPIO_SPEED_FREQ_HIGH;
+		//Cargar configuración PIN
+		HAL_GPIO_Init(GPIO_port, &PIN_DHT22_config);	//Modificar por GPIO_port y GPIO_num
 
-	//Preparar configuración PIN
-	GPIO_InitTypeDef PIN_DHT22_config={
-			.Pin = PIN_DHT22,
-			.Mode = MODE_OUTPUT | OUTPUT_OD | EXTI_IT | TRIGGER_RISING | TRIGGER_FALLING,
-			/*https://www.st.com/resource/en/reference_manual/dm00093941-stm32f334xx-advanced-armbased-32bit-mcus-stmicroelectronics.pdf
-			 *Página 145. Modo OUTPUT tiene el registro input conectado a I/O PIN
-			* OUTPUT_OD: Open-Drain
-			* EXIT_IT habilita interrupciones
-			* TRIGGER_RISING Interrupción por flanco ascendente
-			* TRIGGER_FALLING Interrupción por flanco descendente
-			*/
-			.Pull = GPIO_PULLUP,      /*Specifies the Pull-up or Pull-Down resistence, GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN*/
-			.Speed = GPIO_SPEED_FREQ_MEDIUM
-	};
+		HAL_NVIC_SetPriority(EXTI9_5_IRQn,0,0);//EXTI15_10_IRQn//EXTI2_IRQn
 
 
-	HAL_GPIO_Init(PORT_PIN_DHT22, &PIN_DHT22_config);	//Modificar por GPIO_port y GPIO_num
+		//NVIC_EnableIRQ(EXTI9_5_IRQn);	//Cuando detecta la interrupción el uC se cuelga
+
+
+		_DHT22.Port = GPIO_port;
+		_DHT22.Pin = GPIO_num;
+	}
 }
 
 
@@ -97,14 +89,14 @@ void GPIO_set_config(uint8_t GPIO_port, uint8_t GPIO_num){
  * @return	None
  * @note	GPIO en modo open-drain
  */
-void GPIO_write(uint8_t GPIO_port, uint8_t GPIO_num, bool_t GPIO_state){
+void GPIO_write(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num, bool_t GPIO_state){
 	/*Agregar PORT*/
-	if(GPIO_num<15){
-		uint16_t _GPIO_num = 2^(GPIO_num);
+
+	if(is_pin(GPIO_num)){
 		if(GPIO_state) {
-			HAL_GPIO_WritePin(PORT_PIN_DHT22, _GPIO_num, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIO_port, GPIO_num, GPIO_PIN_SET);
 		} else {
-			HAL_GPIO_WritePin(PORT_PIN_DHT22, _GPIO_num, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIO_port, GPIO_num, GPIO_PIN_RESET);
 		}
 	} else {
 		/*Error en el número de PIN*/
@@ -112,20 +104,33 @@ void GPIO_write(uint8_t GPIO_port, uint8_t GPIO_num, bool_t GPIO_state){
 }
 
 
-
 /*
  * @brief	Leer estado del pin
  * @param	Número de PIN
  * @return	1 o 0 dependiendo el estado del PIN
  */
-bool_t GPIO_read(uint8_t GPIO_num){
-	if(GPIO_num<15){
-		return HAL_GPIO_ReadPin(PORT_PIN_DHT22, PIN_DHT22);
+bool_t GPIO_read(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num){
+	if(is_pin(GPIO_num)){
+		return HAL_GPIO_ReadPin(GPIO_port, GPIO_num);
 	} else {
 		/*Error en el número de PIN*/
 		return 0;
 	}
 }
+
+
+/*
+ * @brief	Verifica si el valor del pin es válido
+ * @param	Número de PIN
+ * @return	1 si es válido, sino devuelve 0
+ */
+bool_t is_pin(uint16_t GPIO_num){
+	if(IS_GPIO_PIN(GPIO_num) != 1){
+		return 0;
+	}
+	return 1;
+}
+
 
 
 /*
@@ -145,10 +150,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	  } else{
 		  //flanco_descendente();
 	  }*/
-	//_DHT22->T_Array[i] = tiempo del temporizador
-	//resetear temporizador
-	//i++;
-
+	/*_DHT22.T_Array[T_Array_counter] = __HAL_TIM_GET_COUNTER(&hTim2);
+	__HAL_TIM_SET_COUNTER(&hTim2,0);
+	T_Array_counter++;
+	if(T_Array_counter>82){
+		T_Array_counter=0;
+	}*/
+	//uartSendString("a");
+	//BSP_LED_Toggle(LED2);
 }
 
 
@@ -158,11 +167,39 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 
 
+/*----------------------------------------------------- Time ---------------------------------------------*/
+/*
+ * @brief	Devuelve el tiempo actual desde que está corriendo el programa
+ * @param	None
+ * @return	Tiempo desde que el uC está encendido en milisegundos
+ */
+uint32_t tiempo_actual(void){
+	return HAL_GetTick();
+}
 
+/*
+ * @brief	CGenerar delay bloqueante en milisegundos
+ * @param	Tiempo en milisegundos a esperar
+ * @return	None
+ */
+void delay_ms(uint32_t delay){
+	HAL_Delay(delay);
+}
 /*------------------------------------------------------------------ TIMER -----------------------------------------------------------------------------*/
+/*
+ * @brief	Resetea el tiempo del timer 2
+ * @param	None
+ * @return	None
+ */
+void reset_timer(void){
+	T_Array_counter=0;
+	__HAL_TIM_SET_COUNTER(&hTim2,0);
+}
+
 /*Funciones sacadas de "stm32f4xx_hal_tim.c", pero compilador no las reconoce*/
 
 void Timer_Init(void){
+	__HAL_RCC_TIM2_CLK_ENABLE();
     hTim2.Instance = TIM2;
     hTim2.Init.Prescaler = 180-1;//Para que cuente en us
     hTim2.Init.CounterMode = TIM_COUNTERMODE_UP;

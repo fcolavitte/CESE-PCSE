@@ -8,14 +8,15 @@
 #ifndef DHT22_INC_DHT22_H_
 #define DHT22_INC_DHT22_H_
 
+#include "stm32f429xx.h"
 #include <stdbool.h>
 #include <stdio.h>
 
 
 /*----------- Estructura para almacenar los datos de cada DHT22 -------------------------------------------*/
 typedef struct {
-	uint8_t Pin;
-	uint8_t Port;
+	uint16_t Pin;
+	GPIO_TypeDef * Port;
 	uint8_t T_Array[85];/*Se requieren 83 valores de tiempo entre flancos para decodificar*/
 	struct {
 		float temp;

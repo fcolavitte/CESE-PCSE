@@ -20,7 +20,7 @@ static uint8_t string_uint[11];
 
 //Private function
 static uint8_t *uint_to_string(uint32_t numero);
-
+static void send_init_data(void);
 
 
 /*
@@ -44,9 +44,17 @@ bool_t uartInit(void){
 	if (HAL_UART_Init(&UartHandle) != HAL_OK) {
 	  return 0;
 	}
+	send_init_data();
+	return 1;
+}
 
 
-	/*Enviar parámetros de configuración por UART -----------------*/
+/*
+* @brief  Envia parámetros de configuración por UART
+* @param  None
+* @retval None
+*/
+void send_init_data(void){
 	uartSendString("\r\n>> UART inicializado correctamente\r\n");
 	uartSendString(">> Parametros de configuracion UART:\r\n");
 	uartSendString("    > BAUDRATE:  ");
@@ -91,10 +99,7 @@ bool_t uartInit(void){
 	}
 	uartSendString("    > UART_MODE:  UART_MODE_TX_RX\r\n");
 	uartSendString("    > OVER_SAMPLING:  16\r\n");
-
-	return 1;
 }
-
 
 /*
 * @brief  Envía un String por UART. Longitud máxima del array definida por UART_LONG_MAX (incluyendo el '\0')

@@ -1,9 +1,8 @@
-../Drivers/DHT22/src/DHT22.c:36:15:is_pin	16	static
-../Drivers/DHT22/src/DHT22.c:45:6:DHT22_init	16	static
-../Drivers/DHT22/src/DHT22.c:62:7:DHT22_get_temp	24	static
-../Drivers/DHT22/src/DHT22.c:78:11:DHT22_get_temp_string	16	static
-../Drivers/DHT22/src/DHT22.c:88:7:DHT22_get_hum	24	static
-../Drivers/DHT22/src/DHT22.c:104:11:DHT22_get_hum_string	16	static
-../Drivers/DHT22/src/DHT22.c:114:13:tomar_lectura	24	static
-../Drivers/DHT22/src/DHT22.c:142:13:decodificar	40	static
-../Drivers/DHT22/src/DHT22.c:171:17:uint_to_string	32	static
+../Drivers/DHT22/src/DHT22.c:49:6:DHT22_init	16	static
+../Drivers/DHT22/src/DHT22.c:68:7:DHT22_get_temp	24	static
+../Drivers/DHT22/src/DHT22.c:82:11:DHT22_get_temp_string	16	static
+../Drivers/DHT22/src/DHT22.c:92:7:DHT22_get_hum	24	static
+../Drivers/DHT22/src/DHT22.c:106:11:DHT22_get_hum_string	16	static
+../Drivers/DHT22/src/DHT22.c:116:13:tomar_lectura	24	static
+../Drivers/DHT22/src/DHT22.c:151:13:decodificar	40	static
+../Drivers/DHT22/src/DHT22.c:185:11:uint_to_string	32	static

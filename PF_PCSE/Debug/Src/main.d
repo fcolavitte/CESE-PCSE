@@ -36,8 +36,9 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
  C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.h \
- C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
- C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
+ C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/DHT22/inc/DHT22.h \
+ C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h \
+ C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/API/inc/API_uart.h
 ../Inc/main.h:
 C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Inc/stm32f4xx_hal_conf.h:
@@ -76,5 +77,6 @@ C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_P
 C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
 C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.h:
-C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
-C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
+C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/DHT22/inc/DHT22.h:
+C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h:
+C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/API/inc/API_uart.h:
