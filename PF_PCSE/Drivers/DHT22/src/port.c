@@ -21,6 +21,7 @@ void GPIO_write(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num, bool_t GPIO_state);
 bool_t GPIO_read(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num);
 bool_t is_pin(uint16_t GPIO_num);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+void EXTI9_5_IRQHandler(void);
 
 /*Functions time & timer ----------------------------------------------------------------*/
 void reset_timer(void);
@@ -31,6 +32,7 @@ HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim);
 HAL_StatusTypeDef HAL_TIM_Base_Start(TIM_HandleTypeDef *htim);
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim);
 void TIM_Base_SetConfig(TIM_TypeDef *TIMx, TIM_Base_InitTypeDef *Structure);
+void reset_T_Array_counter(void);
 
 /*Variables -----------------------------------------------------------------------*/
 TIM_HandleTypeDef hTim2;		/*Handler para Timer2*/
@@ -69,11 +71,36 @@ void GPIO_set_config(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num){
 		//Cargar configuración PIN
 		HAL_GPIO_Init(GPIO_port, &PIN_DHT22_config);	//Modificar por GPIO_port y GPIO_num
 
-		HAL_NVIC_SetPriority(EXTI9_5_IRQn,0,0);//EXTI15_10_IRQn//EXTI2_IRQn
+		IRQn_Type IRQn;
+		switch (GPIO_num){
+			case GPIO_PIN_0:
+				IRQn = EXTI0_IRQn;
+			break;
+			case GPIO_PIN_1:
+				IRQn = EXTI1_IRQn;
+			break;
+			case GPIO_PIN_2:
+				IRQn = EXTI2_IRQn;
+			break;
+			case GPIO_PIN_3:
+				IRQn = EXTI3_IRQn;
+			break;
+			case GPIO_PIN_4:
+				IRQn = EXTI4_IRQn;
+			break;
+			default:
+				if(GPIO_num<GPIO_PIN_10){
+					IRQn = EXTI9_5_IRQn;
+				} else {
+					IRQn = EXTI15_10_IRQn;
+				}
+			break;
+		}
+		HAL_NVIC_SetPriority(IRQn,0,0);//EXTI15_10_IRQn//EXTI2_IRQn
+		NVIC_EnableIRQ(IRQn);
 
-
-		//NVIC_EnableIRQ(EXTI9_5_IRQn);	//Cuando detecta la interrupción el uC se cuelga
-
+		/*Inicializar Timer*/
+		Timer_Init();
 
 		_DHT22.Port = GPIO_port;
 		_DHT22.Pin = GPIO_num;
@@ -90,8 +117,6 @@ void GPIO_set_config(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num){
  * @note	GPIO en modo open-drain
  */
 void GPIO_write(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num, bool_t GPIO_state){
-	/*Agregar PORT*/
-
 	if(is_pin(GPIO_num)){
 		if(GPIO_state) {
 			HAL_GPIO_WritePin(GPIO_port, GPIO_num, GPIO_PIN_SET);
@@ -131,6 +156,88 @@ bool_t is_pin(uint16_t GPIO_num){
 	return 1;
 }
 
+/*
+ * @brief	Recetea la variable T_Array_counter
+ * @param	None
+ * @return	None
+ */
+void reset_T_Array_counter(void){
+	T_Array_counter=0;
+}
+
+/*---------------------------------------------- Interrupciones --------------------------------------------*/
+
+/*
+ * @brief	Manejador de interrupción EXIT0
+ * @param	None
+ * @return	None
+ */
+void EXTI0_IRQHandler(void){
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+}
+
+/*
+ * @brief	Manejador de interrupción EXIT1
+ * @param	None
+ * @return	None
+ */
+void EXTI1_IRQHandler(void){
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
+}
+
+/*
+ * @brief	Manejador de interrupción EXIT2
+ * @param	None
+ * @return	None
+ */
+void EXTI2_IRQHandler(void){
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
+}
+
+/*
+ * @brief	Manejador de interrupción EXIT3
+ * @param	None
+ * @return	None
+ */
+void EXTI3_IRQHandler(void){
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
+}
+
+/*
+ * @brief	Manejador de interrupción EXIT4
+ * @param	None
+ * @return	None
+ */
+void EXTI4_IRQHandler(void){
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
+}
+
+/*
+ * @brief	Manejador de interrupción EXIT9_5
+ * @param	None
+ * @return	None
+ */
+void EXTI9_5_IRQHandler(void){
+	if(_DHT22.Pin<=GPIO_PIN_9 && _DHT22.Pin>=GPIO_PIN_5){
+		HAL_GPIO_EXTI_IRQHandler(_DHT22.Pin);
+	} else {
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_5);
+	}
+}
+
+/*
+ * @brief	Manejador de interrupción EXIT15_10
+ * @param	None
+ * @return	None
+ */
+void EXTI15_10_IRQHandler (void){
+	if(_DHT22.Pin<=GPIO_PIN_15 && _DHT22.Pin>=GPIO_PIN_10){
+		HAL_GPIO_EXTI_IRQHandler(_DHT22.Pin);
+	} else {
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
+	}
+}
+
 
 
 /*
@@ -150,21 +257,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	  } else{
 		  //flanco_descendente();
 	  }*/
-	/*_DHT22.T_Array[T_Array_counter] = __HAL_TIM_GET_COUNTER(&hTim2);
+	_DHT22.T_Array[T_Array_counter] = __HAL_TIM_GET_COUNTER(&hTim2);
 	__HAL_TIM_SET_COUNTER(&hTim2,0);
 	T_Array_counter++;
-	if(T_Array_counter>82){
+	if(T_Array_counter> (sizeof(_DHT22.T_Array)/sizeof(_DHT22.T_Array[0]))-1 ){
 		T_Array_counter=0;
-	}*/
+	}
 	//uartSendString("a");
-	//BSP_LED_Toggle(LED2);
+	BSP_LED_Toggle(LED2);
 }
-
-
-
-
-
-
 
 
 /*----------------------------------------------------- Time ---------------------------------------------*/
@@ -185,6 +286,8 @@ uint32_t tiempo_actual(void){
 void delay_ms(uint32_t delay){
 	HAL_Delay(delay);
 }
+
+
 /*------------------------------------------------------------------ TIMER -----------------------------------------------------------------------------*/
 /*
  * @brief	Resetea el tiempo del timer 2
@@ -196,12 +299,12 @@ void reset_timer(void){
 	__HAL_TIM_SET_COUNTER(&hTim2,0);
 }
 
-/*Funciones sacadas de "stm32f4xx_hal_tim.c", pero compilador no las reconoce*/
+/*Funciones copiadas del archivo de "stm32f4xx_hal_tim.c", pero compilador no las reconoce*/
 
 void Timer_Init(void){
 	__HAL_RCC_TIM2_CLK_ENABLE();
     hTim2.Instance = TIM2;
-    hTim2.Init.Prescaler = 180-1;//Para que cuente en us
+    hTim2.Init.Prescaler = 80-1;//Para que cuente en us
     hTim2.Init.CounterMode = TIM_COUNTERMODE_UP;
     hTim2.Init.Period = 0xffff;
     hTim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;

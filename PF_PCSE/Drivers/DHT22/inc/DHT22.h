@@ -17,12 +17,12 @@
 typedef struct {
 	uint16_t Pin;
 	GPIO_TypeDef * Port;
-	uint8_t T_Array[85];/*Se requieren 83 valores de tiempo entre flancos para decodificar*/
+	uint16_t T_Array[43];/*Se requieren 83 valores de tiempo entre flancos para decodificar*/
 	struct {
 		float temp;
-		uint8_t temp_string[7];
+		uint8_t temp_string[6];
 		float hum;
-		uint8_t hum_string[7];
+		uint8_t hum_string[6];
 	} data;
 	uint32_t time_last_call;	/*Ultima vez que se llamó en ms*/
 } DHT22_sensor;

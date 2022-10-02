@@ -8,11 +8,6 @@
 #include "API_uart.h"
 
 
-static const uint16_t T_Low = 50;	//us
-static const uint16_t T_1_High = 70;	//us
-static const uint16_t T_1 = T_Low + T_1_High;	//us
-
-
 
 /*Extern functions -------------------------------------------------------------*/
 extern uint32_t tiempo_actual(void);
@@ -21,6 +16,7 @@ extern void delay_ms(uint32_t delay);
 extern void GPIO_write(uint8_t * GPIO_port, uint8_t GPIO_num, bool_t GPIO_state);
 extern void reset_timer();
 extern bool_t is_pin(DHT22_sensor * DHT22_struct);
+extern void reset_T_Array_counter(void);
 
 /*Functions --------------------------------------------------------------------*/
 void DHT22_init(DHT22_sensor * DHT22_struct);
@@ -38,6 +34,10 @@ uint8_t *uint_to_string(uint32_t numero);
 extern DHT22_sensor _DHT22;
 static uint8_t string_uint[11];
 
+static const uint8_t inicio_bit_0=2;	/*Primer interrupción es cuando el DHT toma el control del canal y comienza a confirmar.
+										 *Segunda interrupción es cuando el DHT termina de confirmar y está por -
+										 *- empezar a transmitir el bit 0.*/
+static const uint8_t pos_last_bit_data=33;
 
 
 
@@ -53,6 +53,9 @@ void DHT22_init(DHT22_sensor * DHT22_struct){
 		DHT22_struct->data.hum  = 0;
 		DHT22_struct->data.hum_string[0]  = '\0';
 		DHT22_struct->time_last_call = 0;
+		for(uint8_t i=0;i<(sizeof(_DHT22.T_Array)/sizeof(_DHT22.T_Array[0]));i++){
+			DHT22_struct->T_Array[i]=0;
+		}
 		GPIO_set_config(DHT22_struct->Port, DHT22_struct->Pin);
 
 		GPIO_write(DHT22_struct->Port, DHT22_struct->Pin, 1);
@@ -94,7 +97,7 @@ float DHT22_get_hum(DHT22_sensor * DHT22_struct){
 	if(tiempo_actual() - DHT22_struct->time_last_call > 2000){
 		tomar_lectura(DHT22_struct);
 	}
-	hum = DHT22_struct->data.temp;
+	hum = DHT22_struct->data.hum;
 	return hum;
 }
 
@@ -115,29 +118,17 @@ uint8_t * DHT22_get_hum_string(DHT22_sensor * DHT22_struct){
  */
 static void tomar_lectura(DHT22_sensor * DHT22_struct){
 	if(is_pin(DHT22_struct)){
-		/*
-		 * Ver de hacer por interrupción
-		 */
-
 		reset_timer();
 		GPIO_write(DHT22_struct->Port, DHT22_struct->Pin, 0);
-		uartSendString(uint_to_string(GPIO_read(DHT22_struct->Port, DHT22_struct->Pin)));
 		delay_ms(2);
 		reset_timer();
+		reset_T_Array_counter();
 		GPIO_write(DHT22_struct->Port, DHT22_struct->Pin, 1);
-		uartSendString(uint_to_string(GPIO_read(DHT22_struct->Port, DHT22_struct->Pin)));
-		delay_ms(7);	/*Delay 7ms para que se realice la transmisión*/
-
-		//Apagar Timer
-
-		//uartSendString("\r\nT_Array:\r\n");
-		for(uint8_t i=0;i<85;i++){
+		delay_ms(5);	/*Delay 5ms para que se realice la transmisión*/
+		for(uint8_t i=0;i<(sizeof(_DHT22.T_Array)/sizeof(_DHT22.T_Array[0]));i++){
 			DHT22_struct->T_Array[i] = _DHT22.T_Array[i];
-			//uartSendString(uint_to_string(DHT22_struct->T_Array[i]));
-			//uartSendString("-");
 		}
-		uartSendString("\r\n");
-		//decodificar(DHT22_struct);
+		decodificar(DHT22_struct);
 		DHT22_struct->time_last_call = tiempo_actual();
 	}
 }
@@ -150,12 +141,13 @@ static void tomar_lectura(DHT22_sensor * DHT22_struct){
  */
 static void decodificar(DHT22_sensor * DHT22_struct){
 	uint32_t cadena_dato=0;
-	uint8_t inicio_bit_0=0;
-	for(uint8_t i=inicio_bit_0;i<85;i++){/*Ver como hago la interrupción, puede que no arranque desde cero*/
-		if(DHT22_struct->T_Array[i-inicio_bit_0]>(T_1-10)&&DHT22_struct->T_Array[i-inicio_bit_0]<(T_1+10)){
-			cadena_dato += 1<<(31-(i-inicio_bit_0));
+
+	for(uint8_t i=inicio_bit_0; i<=pos_last_bit_data; i++){
+		if(DHT22_struct->T_Array[i]>100){
+			cadena_dato += 1UL<<(pos_last_bit_data-i);
 		}
 	}
+
 	float humidity = (float)(cadena_dato/(1<<16));
 	humidity = humidity/10;
 	float temperature = (float)(cadena_dato%(1<<15));
@@ -163,17 +155,38 @@ static void decodificar(DHT22_sensor * DHT22_struct){
 	DHT22_struct->data.hum = humidity;
 	DHT22_struct->data.temp = temperature;
 
-	uint8_t * data_string = uint_to_string(cadena_dato/(1<<16));
-	for(uint8_t i=0;i<6;i++){
-		DHT22_struct->data.hum_string[i]=data_string[i];
+	/*variables tipo string*/
+	uint8_t * data_string = uint_to_string((uint32_t)(humidity*10));
+	if(humidity<10){
+		DHT22_struct->data.hum_string[0]=data_string[0];
+		DHT22_struct->data.hum_string[1]=',';
+		DHT22_struct->data.hum_string[2]=data_string[1];
+		DHT22_struct->data.hum_string[3]='%';
+		DHT22_struct->data.hum_string[4]='\0';
+	} else {
+		DHT22_struct->data.hum_string[0]=data_string[0];
+		DHT22_struct->data.hum_string[1]=data_string[1];
+		DHT22_struct->data.hum_string[2]=',';
+		DHT22_struct->data.hum_string[3]=data_string[2];
+		DHT22_struct->data.hum_string[4]='%';
+		DHT22_struct->data.hum_string[5]='\0';
 	}
-	DHT22_struct->data.hum_string[6]='\0';
 
-	data_string = uint_to_string(cadena_dato%(1<<15));
-	for(uint8_t i=0;i<6;i++){
-		DHT22_struct->data.temp_string[i]=data_string[i];
+	data_string = uint_to_string((uint32_t)(temperature*10));
+	if(temperature<10){
+		DHT22_struct->data.temp_string[0]=data_string[0];
+		DHT22_struct->data.temp_string[1]=',';
+		DHT22_struct->data.temp_string[2]=data_string[1];
+		DHT22_struct->data.temp_string[3]='C';	/*No toma el '°'*/
+		DHT22_struct->data.temp_string[4]='\0';
+	} else {
+		DHT22_struct->data.temp_string[0]=data_string[0];
+		DHT22_struct->data.temp_string[1]=data_string[1];
+		DHT22_struct->data.temp_string[2]=',';
+		DHT22_struct->data.temp_string[3]=data_string[2];
+		DHT22_struct->data.temp_string[4]='C';	/*No toma el '°'*/
+		DHT22_struct->data.temp_string[5]='\0';
 	}
-	DHT22_struct->data.temp_string[6]='\0';
 }
 
 

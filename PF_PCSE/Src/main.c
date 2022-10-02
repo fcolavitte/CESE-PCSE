@@ -27,7 +27,7 @@ int main(void) {
 
   uartInit();
 
-  DHT22_1.Pin=GPIO_PIN_5;	//PE_4
+  DHT22_1.Pin=GPIO_PIN_4;	//PE_4
   DHT22_1.Port=GPIOE;		//Port E
   DHT22_init(&DHT22_1);
 
@@ -36,22 +36,26 @@ int main(void) {
 
   while (1) {
 
-	  /*HAL_GPIO_TogglePin(DHT22_1.Port, DHT22_1.Pin);
-	  uartSendString(uint_to_string(GPIO_read(DHT22_1.Port, DHT22_1.Pin)));
-	  uartSendString("\r\n");*/
 
-	  //uartSendString(">>");
-	  //uartSendString(DHT22_1.data.temp_string);
-	  //uartSendString("\r\n");
-	  DHT22_get_temp(&DHT22_1);
-	  delay_ms(2000);
+	  uartSendString("\r\nTemp: ");
+	  uartSendString(DHT22_get_temp_string(&DHT22_1));
+	  uartSendString("\r\nHum: ");
+	  uartSendString(DHT22_get_hum_string(&DHT22_1));
+
+	  delay_ms(500);
 
   }
 }
 
 
 
+/*
 
+	uartSendString("\r\nHum:");
+	uartSendString(uint_to_string(DHT22_struct->data.hum));
+	uartSendString("\r\nTemp:");
+	uartSendString(uint_to_string(DHT22_struct->data.temp));
+	*/
 
 
 
