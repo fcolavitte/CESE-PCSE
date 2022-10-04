@@ -16,7 +16,7 @@ extern void delay_ms(uint32_t delay);
 extern void GPIO_write(uint8_t * GPIO_port, uint8_t GPIO_num, bool_t GPIO_state);
 extern void reset_timer();
 extern bool_t is_pin(DHT22_sensor * DHT22_struct);
-extern void reset_T_Array_counter(void);
+
 
 /*Functions --------------------------------------------------------------------*/
 void DHT22_init(DHT22_sensor * DHT22_struct);
@@ -24,7 +24,7 @@ float DHT22_get_temp(DHT22_sensor * DHT22_struct);
 uint8_t * DHT22_get_temp_string(DHT22_sensor * DHT22_struct);
 float DHT22_get_hum(DHT22_sensor * DHT22_struct);
 uint8_t * DHT22_get_hum_string(DHT22_sensor * DHT22_struct);
-static void tomar_lectura(DHT22_sensor * DHT22_struct);
+void tomar_lectura(DHT22_sensor * DHT22_struct);
 static void decodificar(DHT22_sensor * DHT22_struct);
 uint8_t *uint_to_string(uint32_t numero);
 
@@ -47,19 +47,24 @@ static const uint8_t pos_last_bit_data=33;
  * @return	None
  */
 void DHT22_init(DHT22_sensor * DHT22_struct){
-	if(is_pin(DHT22_struct)){	/*Si el PIN es válido*/
+	if(is_pin(DHT22_struct)){
+		/*Cargar estructura como 0*/
 		DHT22_struct->data.temp = 0;
 		DHT22_struct->data.temp_string[0] = '\0';
 		DHT22_struct->data.hum  = 0;
 		DHT22_struct->data.hum_string[0]  = '\0';
+		DHT22_struct->data.crude = 0;
+		DHT22_struct->data.validation = 0;
 		DHT22_struct->time_last_call = 0;
+		DHT22_struct->status = DHT_OK;
 		for(uint8_t i=0;i<(sizeof(_DHT22.T_Array)/sizeof(_DHT22.T_Array[0]));i++){
 			DHT22_struct->T_Array[i]=0;
 		}
+
 		GPIO_set_config(DHT22_struct->Port, DHT22_struct->Pin);
 
 		GPIO_write(DHT22_struct->Port, DHT22_struct->Pin, 1);
-		tomar_lectura(DHT22_struct);
+		//tomar_lectura(DHT22_struct);
 	}
 }
 
@@ -69,12 +74,12 @@ void DHT22_init(DHT22_sensor * DHT22_struct){
  * @return	Temperatura en grados celcius
  */
 float DHT22_get_temp(DHT22_sensor * DHT22_struct){
-	float temp=0;
-	if(tiempo_actual() - DHT22_struct->time_last_call > 2000){
-		tomar_lectura(DHT22_struct);
+	if(_DHT22.status == DHT_OK){
+		decodificar(&_DHT22);
+		return DHT22_struct->data.temp;
+	} else {
+		return 0;
 	}
-	temp = DHT22_struct->data.temp;
-	return temp;
 }
 
 /*
@@ -83,8 +88,12 @@ float DHT22_get_temp(DHT22_sensor * DHT22_struct){
  * @return	Temperatura en grados celcius en String
  */
 uint8_t * DHT22_get_temp_string(DHT22_sensor * DHT22_struct){
-	DHT22_get_temp(DHT22_struct);
-	return DHT22_struct->data.temp_string;
+	if(_DHT22.status == DHT_OK){
+		decodificar(&_DHT22);
+		return DHT22_struct->data.temp_string;
+	} else {
+		return "Null";
+	}
 }
 
 /*
@@ -93,12 +102,12 @@ uint8_t * DHT22_get_temp_string(DHT22_sensor * DHT22_struct){
  * @return	Humedad
  */
 float DHT22_get_hum(DHT22_sensor * DHT22_struct){
-	float hum=0;
-	if(tiempo_actual() - DHT22_struct->time_last_call > 2000){
-		tomar_lectura(DHT22_struct);
+	if(_DHT22.status == DHT_OK){
+		decodificar(&_DHT22);
+		return DHT22_struct->data.hum;
+	} else {
+		return 0;
 	}
-	hum = DHT22_struct->data.hum;
-	return hum;
 }
 
 /*
@@ -107,29 +116,11 @@ float DHT22_get_hum(DHT22_sensor * DHT22_struct){
  * @return	Humedad en String
  */
 uint8_t * DHT22_get_hum_string(DHT22_sensor * DHT22_struct){
-	DHT22_get_hum(DHT22_struct);
-	return DHT22_struct->data.hum_string;
-}
-
-/*
- * @brief	Solicita valores al DHT22 y guarda los tiempos en el array T_Array[85]
- * @param	Puntero a estructura del DHT22
- * @return	None
- */
-static void tomar_lectura(DHT22_sensor * DHT22_struct){
-	if(is_pin(DHT22_struct)){
-		reset_timer();
-		GPIO_write(DHT22_struct->Port, DHT22_struct->Pin, 0);
-		delay_ms(2);
-		reset_timer();
-		reset_T_Array_counter();
-		GPIO_write(DHT22_struct->Port, DHT22_struct->Pin, 1);
-		delay_ms(5);	/*Delay 5ms para que se realice la transmisión*/
-		for(uint8_t i=0;i<(sizeof(_DHT22.T_Array)/sizeof(_DHT22.T_Array[0]));i++){
-			DHT22_struct->T_Array[i] = _DHT22.T_Array[i];
-		}
-		decodificar(DHT22_struct);
-		DHT22_struct->time_last_call = tiempo_actual();
+	if(_DHT22.status == DHT_OK){
+		decodificar(&_DHT22);
+		return DHT22_struct->data.hum_string;
+	} else {
+		return "Null";
 	}
 }
 
@@ -138,19 +129,13 @@ static void tomar_lectura(DHT22_sensor * DHT22_struct){
  * @brief	Traduce los tiempos guardados en el array T_Array[85] y guarda los datos en la sub-estructura data
  * @param	Puntero a estructura del DHT22
  * @return	None
+ * @Note	No se contempla la verificación de la comunicación
  */
 static void decodificar(DHT22_sensor * DHT22_struct){
-	uint32_t cadena_dato=0;
 
-	for(uint8_t i=inicio_bit_0; i<=pos_last_bit_data; i++){
-		if(DHT22_struct->T_Array[i]>100){
-			cadena_dato += 1UL<<(pos_last_bit_data-i);
-		}
-	}
-
-	float humidity = (float)(cadena_dato/(1<<16));
+	float humidity = (float)(DHT22_struct->data.crude/(1<<16));
 	humidity = humidity/10;
-	float temperature = (float)(cadena_dato%(1<<15));
+	float temperature = (float)(DHT22_struct->data.crude%(1<<15));
 	temperature = temperature/10;
 	DHT22_struct->data.hum = humidity;
 	DHT22_struct->data.temp = temperature;

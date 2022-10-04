@@ -23,8 +23,16 @@ typedef struct {
 		uint8_t temp_string[6];
 		float hum;
 		uint8_t hum_string[6];
+		uint32_t crude;			/*Primeros 8 bytes que contienen hum y temp*/
+		uint8_t validation;		/*Byte de comprobación*/
 	} data;
 	uint32_t time_last_call;	/*Ultima vez que se llamó en ms*/
+	enum{
+		DHT_OK = 0,
+		ERR_COMMUNICATION = 1,
+		ERR_DISCONECT = 2,
+		DHT_READING = 3
+	} status;
 } DHT22_sensor;
 
 typedef bool bool_t;

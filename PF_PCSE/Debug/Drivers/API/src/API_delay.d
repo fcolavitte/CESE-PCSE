@@ -35,6 +35,8 @@ Drivers/API/src/API_delay.o: ../Drivers/API/src/API_delay.c \
  C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dsi.h \
  C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
+ C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
+ C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/API/inc/API_delay.h:
 C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
@@ -72,4 +74,6 @@ C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_P
 C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dsi.h:
 C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h:
 C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
+C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
+C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
 C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:

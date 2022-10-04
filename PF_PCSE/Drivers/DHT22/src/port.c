@@ -14,11 +14,17 @@
 #include <stdint.h>
 #include "API_uart.h"
 
+#define T_corte 90 /*Tiempo en us que diferencia un 1 de un 0 en la comunicación*/
+
+	/* Primera interrupción pertenece a liberación del canal por parte del STM32 	*
+	 * y la segunda es por confirmación de DHT22									*/
+#define _inicio_bit_0 2
+
 
 /*Functions GPIO ------------------------------------------------------------------------*/
+extern void tomar_lectura(DHT22_sensor * DHT22_struct);
 void GPIO_set_config(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num);
 void GPIO_write(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num, bool_t GPIO_state);
-bool_t GPIO_read(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num);
 bool_t is_pin(uint16_t GPIO_num);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 void EXTI9_5_IRQHandler(void);
@@ -32,13 +38,13 @@ HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim);
 HAL_StatusTypeDef HAL_TIM_Base_Start(TIM_HandleTypeDef *htim);
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim);
 void TIM_Base_SetConfig(TIM_TypeDef *TIMx, TIM_Base_InitTypeDef *Structure);
-void reset_T_Array_counter(void);
+
 
 /*Variables -----------------------------------------------------------------------*/
 TIM_HandleTypeDef hTim2;		/*Handler para Timer2*/
 DHT22_sensor _DHT22;			/*Sensor DHT22 en que se está realizando la lectura*/
 uint8_t T_Array_counter = 0;	/*Contador para recorrer T_Array de _DHT22*/
-
+uint32_t cont_timer=0;			/*Cuenta los ms con interrupciones*/
 
 
 
@@ -96,14 +102,13 @@ void GPIO_set_config(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num){
 				}
 			break;
 		}
-		HAL_NVIC_SetPriority(IRQn,0,0);//EXTI15_10_IRQn//EXTI2_IRQn
+		HAL_NVIC_SetPriority(IRQn,0,0);
 		NVIC_EnableIRQ(IRQn);
 
 		/*Inicializar Timer*/
 		Timer_Init();
 
-		_DHT22.Port = GPIO_port;
-		_DHT22.Pin = GPIO_num;
+
 	}
 }
 
@@ -123,25 +128,15 @@ void GPIO_write(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num, bool_t GPIO_state){
 		} else {
 			HAL_GPIO_WritePin(GPIO_port, GPIO_num, GPIO_PIN_RESET);
 		}
+
+		/*Selecciona el pin al que está conectado el DHT a medir*/
+		_DHT22.Port = GPIO_port;
+		_DHT22.Pin = GPIO_num;
 	} else {
 		/*Error en el número de PIN*/
 	}
 }
 
-
-/*
- * @brief	Leer estado del pin
- * @param	Número de PIN
- * @return	1 o 0 dependiendo el estado del PIN
- */
-bool_t GPIO_read(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num){
-	if(is_pin(GPIO_num)){
-		return HAL_GPIO_ReadPin(GPIO_port, GPIO_num);
-	} else {
-		/*Error en el número de PIN*/
-		return 0;
-	}
-}
 
 
 /*
@@ -156,14 +151,6 @@ bool_t is_pin(uint16_t GPIO_num){
 	return 1;
 }
 
-/*
- * @brief	Recetea la variable T_Array_counter
- * @param	None
- * @return	None
- */
-void reset_T_Array_counter(void){
-	T_Array_counter=0;
-}
 
 /*---------------------------------------------- Interrupciones --------------------------------------------*/
 
@@ -239,33 +226,39 @@ void EXTI15_10_IRQHandler (void){
 }
 
 
-
 /*
  * @brief	Control de interrupción por PIN
  * @param	Número de PIN
  * @return	None
  */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	if(GPIO_Pin==_DHT22.Pin){
+		uint32_t new_bit = __HAL_TIM_GET_COUNTER(&hTim2);
+		_DHT22.status = DHT_READING;
+		/*Define si el pulso corresponde a un 0 o 1*/
+		if(new_bit>T_corte){new_bit=1;}else{new_bit=0;}
 
-	  /*
-	   * Verificar si el pin que actuó el ISR es el del DHT22
-	   * Asignar a variable el tiempo del PIN en alto o en bajo
-	   * Ver estado del PIN para definir si fue flanco ascendente o descendente
-	   */
-	  /*if(__HAL_GPIO_EXTI_GET_IT(GPIO_Pin)){
-		  //flanco_ascendente();
-	  } else{
-		  //flanco_descendente();
-	  }*/
-	_DHT22.T_Array[T_Array_counter] = __HAL_TIM_GET_COUNTER(&hTim2);
-	__HAL_TIM_SET_COUNTER(&hTim2,0);
-	T_Array_counter++;
-	if(T_Array_counter> (sizeof(_DHT22.T_Array)/sizeof(_DHT22.T_Array[0]))-1 ){
-		T_Array_counter=0;
+		if(T_Array_counter>=_inicio_bit_0 && T_Array_counter<32+_inicio_bit_0){
+			new_bit = new_bit<<(31+_inicio_bit_0-T_Array_counter);
+			_DHT22.data.crude |= new_bit;
+		}
+		if(T_Array_counter>=32+_inicio_bit_0 && T_Array_counter<40+_inicio_bit_0){
+			new_bit = new_bit<<(39+_inicio_bit_0-T_Array_counter);
+			_DHT22.data.validation |= new_bit;
+			if(T_Array_counter==39+_inicio_bit_0){	/*Se completó la lectura*/
+				cont_timer=0;
+				_DHT22.status = DHT_OK;
+			}
+		}
+		T_Array_counter++;
+		if(T_Array_counter> (sizeof(_DHT22.T_Array)/sizeof(_DHT22.T_Array[0]))-1 ){
+			T_Array_counter=0;
+		}
+
+		__HAL_TIM_SET_COUNTER(&hTim2,0);
 	}
-	//uartSendString("a");
-	BSP_LED_Toggle(LED2);
 }
+
 
 
 /*----------------------------------------------------- Time ---------------------------------------------*/
@@ -299,160 +292,67 @@ void reset_timer(void){
 	__HAL_TIM_SET_COUNTER(&hTim2,0);
 }
 
-/*Funciones copiadas del archivo de "stm32f4xx_hal_tim.c", pero compilador no las reconoce*/
-
+/*
+ * @brief	Inicializa el Timer 2
+ * @param	None
+ * @return	None
+ */
 void Timer_Init(void){
 	__HAL_RCC_TIM2_CLK_ENABLE();
     hTim2.Instance = TIM2;
     hTim2.Init.Prescaler = 80-1;//Para que cuente en us
     hTim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-    hTim2.Init.Period = 0xffff;
+    hTim2.Init.Period = 1000-1;	//1ms
     hTim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     hTim2.Init.RepetitionCounter = 0;
     hTim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     HAL_TIM_Base_Init(&hTim2);
-    HAL_TIM_Base_Start(&hTim2); // Trying to start the base counter
+
+    TIM_ClockConfigTypeDef TimClock = {0};
+    TimClock.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+	HAL_TIM_ConfigClockSource(&hTim2, &TimClock);
+
+	TIM_MasterConfigTypeDef TimMaster = {0};
+	TimMaster.MasterSlaveMode = TIM_SLAVEMODE_DISABLE;
+	TimMaster.MasterOutputTrigger = TIM_TRGO_RESET;
+	HAL_TIMEx_MasterConfigSynchronization(&hTim2, &TimMaster);
+
+	HAL_NVIC_SetPriority(TIM2_IRQn,5,5);
+	NVIC_EnableIRQ(TIM2_IRQn);
+
+	HAL_TIM_Base_Start_IT(&hTim2);
 }
 
-HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim)
-{
-  /* Check the TIM handle allocation */
-  if (htim == NULL)
-  {
-    return HAL_ERROR;
-  }
-
-  /* Check the parameters */
-  assert_param(IS_TIM_INSTANCE(htim->Instance));
-  assert_param(IS_TIM_COUNTER_MODE(htim->Init.CounterMode));
-  assert_param(IS_TIM_CLOCKDIVISION_DIV(htim->Init.ClockDivision));
-  assert_param(IS_TIM_AUTORELOAD_PRELOAD(htim->Init.AutoReloadPreload));
-
-  if (htim->State == HAL_TIM_STATE_RESET)
-  {
-    /* Allocate lock resource and initialize it */
-    htim->Lock = HAL_UNLOCKED;
-
-#if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
-    /* Reset interrupt callbacks to legacy weak callbacks */
-    TIM_ResetCallback(htim);
-
-    if (htim->Base_MspInitCallback == NULL)
-    {
-      htim->Base_MspInitCallback = HAL_TIM_Base_MspInit;
-    }
-    /* Init the low level hardware : GPIO, CLOCK, NVIC */
-    htim->Base_MspInitCallback(htim);
-#else
-    /* Init the low level hardware : GPIO, CLOCK, NVIC */
-    HAL_TIM_Base_MspInit(htim);
-#endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
-  }
-
-  /* Set the TIM state */
-  htim->State = HAL_TIM_STATE_BUSY;
-
-  /* Set the Time Base configuration */
-  TIM_Base_SetConfig(htim->Instance, &htim->Init);
-
-  /* Initialize the DMA burst operation state */
-  htim->DMABurstState = HAL_DMA_BURST_STATE_READY;
-
-  /* Initialize the TIM channels state */
-  TIM_CHANNEL_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_READY);
-  TIM_CHANNEL_N_STATE_SET_ALL(htim, HAL_TIM_CHANNEL_STATE_READY);
-
-  /* Initialize the TIM state*/
-  htim->State = HAL_TIM_STATE_READY;
-
-  return HAL_OK;
+/*
+ * @brief	Manejador de interrupción por Timer2
+ * @param	None
+ * @return	None
+ */
+void TIM2_IRQHandler (void){
+	HAL_TIM_IRQHandler(&hTim2);
 }
 
-HAL_StatusTypeDef HAL_TIM_Base_Start(TIM_HandleTypeDef *htim)
-{
-  uint32_t tmpsmcr;
 
-  /* Check the parameters */
-  assert_param(IS_TIM_INSTANCE(htim->Instance));
-
-  /* Check the TIM state */
-  if (htim->State != HAL_TIM_STATE_READY)
-  {
-    return HAL_ERROR;
-  }
-
-  /* Set the TIM state */
-  htim->State = HAL_TIM_STATE_BUSY;
-
-  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
-  if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
-  {
-    tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
-    if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
-    {
-      __HAL_TIM_ENABLE(htim);
-    }
-  }
-  else
-  {
-    __HAL_TIM_ENABLE(htim);
-  }
-
-  /* Return function status */
-  return HAL_OK;
+/*
+ * @brief	Control de interrupción por Timer2
+ * @param	Manejador del Timer2
+ * @return	None
+ * @Note	Ocurre una interrupcion cada 1ms
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	cont_timer++;
+	if(cont_timer>9000){
+		cont_timer=0;
+	}
+	if(cont_timer>2501){
+		T_Array_counter=0;
+		GPIO_write(_DHT22.Port, _DHT22.Pin, 1);
+	}else if(cont_timer>=2500){
+		_DHT22.data.crude=0;
+		_DHT22.data.validation=0;
+		GPIO_write(_DHT22.Port, _DHT22.Pin, 0);
+		T_Array_counter=0;
+	}
 }
-
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
-{
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(htim);
-
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_Base_MspInit could be implemented in the user file
-   */
-}
-
-void TIM_Base_SetConfig(TIM_TypeDef *TIMx, TIM_Base_InitTypeDef *Structure)
-{
-  uint32_t tmpcr1;
-  tmpcr1 = TIMx->CR1;
-
-  /* Set TIM Time Base Unit parameters ---------------------------------------*/
-  if (IS_TIM_COUNTER_MODE_SELECT_INSTANCE(TIMx))
-  {
-    /* Select the Counter Mode */
-    tmpcr1 &= ~(TIM_CR1_DIR | TIM_CR1_CMS);
-    tmpcr1 |= Structure->CounterMode;
-  }
-
-  if (IS_TIM_CLOCK_DIVISION_INSTANCE(TIMx))
-  {
-    /* Set the clock division */
-    tmpcr1 &= ~TIM_CR1_CKD;
-    tmpcr1 |= (uint32_t)Structure->ClockDivision;
-  }
-
-  /* Set the auto-reload preload */
-  MODIFY_REG(tmpcr1, TIM_CR1_ARPE, Structure->AutoReloadPreload);
-
-  TIMx->CR1 = tmpcr1;
-
-  /* Set the Autoreload value */
-  TIMx->ARR = (uint32_t)Structure->Period ;
-
-  /* Set the Prescaler value */
-  TIMx->PSC = Structure->Prescaler;
-
-  if (IS_TIM_REPETITION_COUNTER_INSTANCE(TIMx))
-  {
-    /* Set the Repetition Counter value */
-    TIMx->RCR = Structure->RepetitionCounter;
-  }
-
-  /* Generate an update event to reload the Prescaler
-     and the repetition counter (only for advanced timer) value immediately */
-  TIMx->EGR = TIM_EGR_UG;
-}
-
 
 
