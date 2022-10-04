@@ -33,9 +33,16 @@ Medición de humedad y temperatura con DHT22 y placa núcleo STM32F429ZI
 ### float DHT22_get_hum(DHT22_sensor * DHT22_struct);
 > @brief	Solicita el valor de humedad<br/>
 > @param	Puntero a estructura del DHT22<br/>
-> @return	Humedad en String
+> @return	Humedad
 
 ### uint8_t * DHT22_get_hum_string(DHT22_sensor * DHT22_struct);
 > @brief	Solicita el valor de humedad<br/>
 > @param	Puntero a estructura del DHT22<br/>
-> @return	Humedad
+> @return	Humedad en String
+
+## Ejemplo de inicialización:
+> DHT22_sensor DHT22_1;
+> DHT22_1.Pin=GPIO_PIN_4;	//PE_4
+> DHT22_1.Port=GPIOE;		//Port E
+> DHT22_init(&DHT22_1);
+
