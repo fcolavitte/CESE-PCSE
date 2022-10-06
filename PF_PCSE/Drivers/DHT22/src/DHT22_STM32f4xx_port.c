@@ -7,6 +7,7 @@
  *  Driver documentation:
  *  	https://github.com/fcolavitte/CESE-PCSE.git
  */
+
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_gpio.h"
 #include "stm32f4xx_hal_tim.h"
@@ -17,46 +18,47 @@
 #include <stdint.h>
 #include "API_uart.h"
 
-#define T_corte 90 /*Tiempo en us que diferencia un 1 de un 0 en la comunicación*/
 
-/*
- *  Primera interrupción pertenece a liberación del canal por parte del STM32
- *  y la segunda es por confirmación de DHT22
- */
-#define _inicio_bit_0 2
+#define T_corte 90 	/*Tiempo en us que diferencia un 1 de un 0 en la comunicación			*/
+					/*Incluye tanto tiempo en bajo como en alto para cada bit				*/
 
 
-/*Functions GPIO ------------------------------------------------------------------------*/
-extern void tomar_lectura(DHT22_sensor * DHT22_struct);
+#define _inicio_bit_0 2	/*Primera interrupción pertenece al inicio de la confirmación del	*/
+						/*DHT22 y la segunda es el final de la confirmación					*/
+
+
+/*Functions GPIO ---------------------------------------------------------------------------*/
 void GPIO_set_config(uint8_t GPIO_port, uint16_t GPIO_num);
 void GPIO_write(uint8_t GPIO_port, uint16_t GPIO_num, bool_t GPIO_state);
 bool_t is_pin(uint16_t GPIO_num);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
-void EXTI9_5_IRQHandler(void);
+static void EXTI9_5_IRQHandler(void);
 
-/*Functions time & timer ----------------------------------------------------------------*/
+
+/*Functions time & timer -------------------------------------------------------------------*/
 void reset_timer(void);
 uint32_t tiempo_actual(void);
 void port_delay_ms(uint32_t delay);
 void Timer_Init(void);
-HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim);
-HAL_StatusTypeDef HAL_TIM_Base_Start(TIM_HandleTypeDef *htim);
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim);
-void TIM_Base_SetConfig(TIM_TypeDef *TIMx, TIM_Base_InitTypeDef *Structure);
 
 
-/*Variables -----------------------------------------------------------------------*/
-TIM_HandleTypeDef hTim2;		/*Handler para Timer2*/
-extern DHT22_sensor _DHT22;			/*Sensor DHT22 en que se está realizando la lectura*/
-uint8_t T_Array_counter = 0;	/*Contador para recorrer T_Array de _DHT22*/
-uint32_t cont_timer=0;			/*Cuenta los ms con interrupciones*/
+/*Variables --------------------------------------------------------------------------------*/
+TIM_HandleTypeDef hTim2;		/*Handler para Timer2										*/
+extern DHT22_sensor _DHT22;		/*Sensor DHT22 en que se está realizando la lectura			*/
+uint8_t T_Array_counter = 0;	/*Contador para recorrer T_Array de _DHT22					*/
+uint32_t cont_timer=0;			/*Cuenta los ms con interrupciones							*/
 
 
 
-/*---------------------------------------------------- GPIO -------------------------------------------------------*/
+
+/*----------------------------------------------- GPIO -------------------------------------------------------*/
 
 
-
+/*
+ * @brief	Convierte variable PORT definida en DHT22.h a variable utilizada por la HAL para dicho puerto
+ * @param	PORT_A a PORT_G
+ * @param	Puntero a estructura PORT
+ */
 GPIO_TypeDef  * _HAL_PORT_DECODE(uint8_t Port){
 	GPIO_TypeDef  * _HAL_PORT;
 	switch (Port){
@@ -192,12 +194,10 @@ bool_t is_pin(uint16_t GPIO_num){
 }
 
 
-/*---------------------------------------------- Interrupciones --------------------------------------------*/
+/*-------------------------------------------- Interrupciones --------------------------------------------*/
 
 /*
  * @brief	Manejador de interrupción EXIT0
- * @param	None
- * @return	None
  */
 void EXTI0_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
@@ -205,8 +205,6 @@ void EXTI0_IRQHandler(void){
 
 /*
  * @brief	Manejador de interrupción EXIT1
- * @param	None
- * @return	None
  */
 void EXTI1_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
@@ -214,8 +212,6 @@ void EXTI1_IRQHandler(void){
 
 /*
  * @brief	Manejador de interrupción EXIT2
- * @param	None
- * @return	None
  */
 void EXTI2_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
@@ -223,8 +219,6 @@ void EXTI2_IRQHandler(void){
 
 /*
  * @brief	Manejador de interrupción EXIT3
- * @param	None
- * @return	None
  */
 void EXTI3_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
@@ -232,8 +226,6 @@ void EXTI3_IRQHandler(void){
 
 /*
  * @brief	Manejador de interrupción EXIT4
- * @param	None
- * @return	None
  */
 void EXTI4_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
@@ -241,8 +233,6 @@ void EXTI4_IRQHandler(void){
 
 /*
  * @brief	Manejador de interrupción EXIT9_5
- * @param	None
- * @return	None
  */
 void EXTI9_5_IRQHandler(void){
 	if(_DHT22.Pin<=GPIO_PIN_9 && _DHT22.Pin>=GPIO_PIN_5){
@@ -254,8 +244,6 @@ void EXTI9_5_IRQHandler(void){
 
 /*
  * @brief	Manejador de interrupción EXIT15_10
- * @param	None
- * @return	None
  */
 void EXTI15_10_IRQHandler (void){
 	if(_DHT22.Pin<=GPIO_PIN_15 && _DHT22.Pin>=GPIO_PIN_10){
@@ -269,7 +257,6 @@ void EXTI15_10_IRQHandler (void){
 /*
  * @brief	Control de interrupción por PIN
  * @param	Número de PIN
- * @return	None
  */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin==_DHT22.Pin){
@@ -301,10 +288,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 
 
-/*----------------------------------------------------- Time ---------------------------------------------*/
+/*------------------------------------------------ Time --------------------------------------------------*/
 /*
  * @brief	Devuelve el tiempo actual desde que está corriendo el programa
- * @param	None
  * @return	Tiempo desde que el uC está encendido en milisegundos
  */
 uint32_t tiempo_actual(void){
@@ -314,23 +300,22 @@ uint32_t tiempo_actual(void){
 /*
  * @brief	CGenerar delay bloqueante en milisegundos
  * @param	Tiempo en milisegundos a esperar
- * @return	None
  */
 void port_delay_ms(uint32_t delay){
 	HAL_Delay(delay);
 }
 
 
-/*------------------------------------------------------------------ TIMER -----------------------------------------------------------------------------*/
+/*------------------------------------------------ TIMER -------------------------------------------------*/
+
 /*
  * @brief	Resetea el tiempo del timer 2
- * @param	None
- * @return	None
  */
 void reset_timer(void){
 	T_Array_counter=0;
 	__HAL_TIM_SET_COUNTER(&hTim2,0);
 }
+
 
 /*
  * @brief	Inicializa el Timer 2
@@ -368,8 +353,6 @@ void Timer_Init(void){
 
 /*
  * @brief	Manejador de interrupción por Timer2
- * @param	None
- * @return	None
  */
 void TIM2_IRQHandler (void){
 	HAL_TIM_IRQHandler(&hTim2);
@@ -379,7 +362,6 @@ void TIM2_IRQHandler (void){
 /*
  * @brief	Control de interrupción por Timer2
  * @param	Manejador del Timer2
- * @return	None
  * @Note	Ocurre una interrupcion cada 1ms
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){

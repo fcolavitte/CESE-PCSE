@@ -15,8 +15,8 @@ extern uint32_t tiempo_actual(void);
 extern void GPIO_set_config(uint8_t GPIO_port, uint8_t GPIO_num);
 extern void port_delay_ms(uint32_t delay);
 extern void GPIO_write(uint8_t GPIO_port, uint8_t GPIO_num, bool_t GPIO_state);
-extern void reset_timer();
-extern bool_t is_pin(DHT22_sensor * DHT22_struct);
+extern void reset_timer(void);
+extern bool_t is_pin(uint16_t GPIO_num);
 
 
 /*Functions --------------------------------------------------------------------*/
@@ -26,13 +26,14 @@ uint8_t *uint_to_string(uint32_t numero);
 
 /*Variables Globales ------------------------------------------------------------*/
 DHT22_sensor _DHT22;
-static uint8_t string_uint[11];
+static uint8_t string_uint[11];	/* Variable usada para almacenar en formato String números uint32_t	*/
 
 
 /*
- * @brief	Inicializa el DHT22 con los valores de la estructura cargada
- * @param	Número de PIN del port. de 0x0000 a 0xffff, un único bit en 1.
- * @return	None
+ * @brief	Inicializa las funciones de lectura del DHT22 en el GPIO asignado
+ * @param	Número de GPIO del Port. Revisar HAL o datsheet para obtener el número de cada pin.
+ * @param	Valores válidos PORT_A a PORT_G
+ * @return	True si se inició correctamente. Sino regresa False
  */
 bool_t DHT22_init(uint16_t _pin, uint8_t _port){
 	if(is_pin(_pin)){
@@ -169,11 +170,11 @@ static void decodificar(void){
  * @return	Número en formato String
  */
 uint8_t * uint_to_string(uint32_t numero){
-	uint32_t divisor;
-	uint8_t Exp_divisor;
-	uint32_t digito;
-	uint8_t i = 0;	/*Posición en el string*/
-	bool_t  start_num = 0;	/*Var aux para eliminar 0's a izquierda del dígito significativo*/
+	uint32_t divisor;		/* Divisor potencia de 10 para "desplazar la coma" en sistema decimal	*/
+	uint8_t Exp_divisor;	/* Exponente del divisor, define la potencia de 10						*/
+	uint32_t digito;		/* Dígito del 0 al 9 sin codificación ASCII								*/
+	uint8_t i = 0;			/* Posición en el string												*/
+	bool_t  start_num = 0;	/* Var aux para eliminar 0's a izquierda del dígito significativo		*/
 	string_uint[0]='\0';
 	for(uint8_t posicion=0 ; posicion<10 ; posicion++){
 		Exp_divisor = 9 - posicion;
@@ -186,18 +187,26 @@ uint8_t * uint_to_string(uint32_t numero){
 
 		digito = (numero/divisor)%10;
 		if(digito!=0||start_num!=0){
-			string_uint[i++] = digito + '0';
+			string_uint[i++] = digito + '0';	/* Agregar dígito al String en código ASCII			*/
 			start_num = 1;
 		}
 	}
+
+	/*Si el número original fue 0*/
 	if(string_uint[0]=='\0'){
 		string_uint[0]='0';
 		i=1;
 	}
+
 	string_uint[i] = '\0';
 	return string_uint;
 }
 
+
+/*
+ * @brief	Delay en milisegundos
+ * @param	Tiempo en ms a esperar
+ */
 void delay_ms(uint32_t delay) {
 	port_delay_ms(delay);
 }
