@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.5"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Driver DHT22: Fichero Fuente DHT22/inc/DHT22.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectlogo"><img alt="Logo" src="descarga.jpg"/></td>
+  <td id="projectalign">
+   <div id="projectname">Driver DHT22<span id="projectnumber">&#160;v1.0</span>
+   </div>
+   <div id="projectbrief">Driver genérico para DHT22 por interrupciones</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Generado por Doxygen 1.9.5 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Buscar');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Cargando...</div>
+<div class="SRStatus" id="Searching">Buscando...</div>
+<div class="SRStatus" id="NoMatches">Nada coincide</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_98018571ba8aa2ba21286e75473c7269.html">DHT22</a></li><li class="navelem"><a class="el" href="dir_91acab46b055381cd391f9e67cfef2a8.html">inc</a></li>  </ul>
+</div>
+</div><!-- top -->
+<div class="header">
+  <div class="headertitle"><div class="title">DHT22.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="_d_h_t22_8h.html">Ir a la documentación de este archivo.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#ifndef DHT22_INC_DHT22_H_</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#define DHT22_INC_DHT22_H_</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;stm32f429xx.h&quot;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="_d_h_t22_8h.html#aa2513ef1f868cdfe813ba2f3cf5ae27e">   21</a></span><span class="preprocessor">#define PORT_A 1</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="_d_h_t22_8h.html#ab67535e80c86be4dabdcae0f6028511d">   22</a></span><span class="preprocessor">#define PORT_B 2</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="_d_h_t22_8h.html#a8b1f19a91c7a14a40f9633985d330e40">   23</a></span><span class="preprocessor">#define PORT_C 3</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="_d_h_t22_8h.html#ae256d5f69ef8fdfab967632ad7b753df">   24</a></span><span class="preprocessor">#define PORT_D 4</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno"><a class="line" href="_d_h_t22_8h.html#a193fd9b28005073562257edd69a294e0">   25</a></span><span class="preprocessor">#define PORT_E 5</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="_d_h_t22_8h.html#a2d4c473d5829b4eda4197ac6d002745f">   26</a></span><span class="preprocessor">#define PORT_F 6</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="_d_h_t22_8h.html#adfd1d5035050cce1f992e24d5332f3da">   27</a></span><span class="preprocessor">#define PORT_G 7</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html">   32</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#a38b1073a17d7b10e6c87f0d97c0e8ab6">   34</a></span>    uint16_t <a class="code hl_variable" href="struct_d_h_t22__sensor.html#a38b1073a17d7b10e6c87f0d97c0e8ab6">Pin</a>;</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#a4b93121f04819fbab96346736fa720a9">   36</a></span>    uint8_t  <a class="code hl_variable" href="struct_d_h_t22__sensor.html#a4b93121f04819fbab96346736fa720a9">Port</a>;</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#a24d61a35b72d7299eb6b5f48e71a571b">   40</a></span>        <span class="keywordtype">float</span>    <a class="code hl_variable" href="struct_d_h_t22__sensor.html#a24d61a35b72d7299eb6b5f48e71a571b">temp</a>;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#ae50fb09c30c6d68ace1a62900e95b756">   42</a></span>        uint8_t  temp_string[6];</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#a38adb4de3d9d0391675c323d13503af7">   44</a></span>        <span class="keywordtype">float</span>    <a class="code hl_variable" href="struct_d_h_t22__sensor.html#a38adb4de3d9d0391675c323d13503af7">hum</a>;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#a7baf56c239c23db4d6a5a32418b4fe1f">   46</a></span>        uint8_t  hum_string[6];</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#aea695156e0a1f5efd267bb7b43c28633">   48</a></span>        uint32_t <a class="code hl_variable" href="struct_d_h_t22__sensor.html#aea695156e0a1f5efd267bb7b43c28633">crude</a>;             </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#ac197c77d12c2aae3728375fb50680575">   50</a></span>        uint8_t  <a class="code hl_variable" href="struct_d_h_t22__sensor.html#ac197c77d12c2aae3728375fb50680575">validation</a>;        </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#a2cd800a5e94757b656c5ab1455dad2b5">   51</a></span>    } data;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#a43f075c6860a76cac1d6997d46b04f71">   53</a></span>    uint32_t <a class="code hl_variable" href="struct_d_h_t22__sensor.html#a43f075c6860a76cac1d6997d46b04f71">time_last_call</a>;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keyword">enum</span>{</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#adf764cbdea00d65edcd07bb9953ad2b7af0aac01554980b35438a8196579e27c0">   56</a></span>        DHT_OK = 0,</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#adf764cbdea00d65edcd07bb9953ad2b7a2e98489b03e5c0984a03e580dedd7fe7">   57</a></span>        ERR_COMMUNICATION = 1,</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#adf764cbdea00d65edcd07bb9953ad2b7abbc6f1d9ef19e30ec47f29858fbce90d">   58</a></span>        ERR_DISCONECT = 2,</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        DHT_READING = 3</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="struct_d_h_t22__sensor.html#adf764cbdea00d65edcd07bb9953ad2b7a2ff78eecc5c1fdd159427ae8975e8f81">   60</a></span>    } status;</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>} <a class="code hl_struct" href="struct_d_h_t22__sensor.html">DHT22_sensor</a>;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno"><a class="line" href="_d_h_t22_8h.html#a2b21255bd7f7192db778983b15089208">   63</a></span><span class="keyword">typedef</span> <span class="keywordtype">bool</span> <a class="code hl_typedef" href="_d_h_t22_8h.html#a2b21255bd7f7192db778983b15089208">bool_t</a>;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="comment">/*--------------------------------------- PUBLIC FUNCTIONS ------------------------------------------------*/</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><a class="code hl_typedef" href="_d_h_t22_8h.html#a2b21255bd7f7192db778983b15089208">bool_t</a> <a class="code hl_function" href="_d_h_t22_8h.html#a65d7d452b7b0339ba40853687a3cd326">DHT22_init</a>(uint16_t _pin, uint8_t _port);</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keywordtype">float</span> <a class="code hl_function" href="_d_h_t22_8h.html#a44e3c3ffb1640f3c1d03419a1ba6580c">DHT22_get_temp</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>uint8_t * <a class="code hl_function" href="_d_h_t22_8h.html#a7c9b27436e57133d990e77d18e5bcd40">DHT22_get_temp_string</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="keywordtype">float</span> <a class="code hl_function" href="_d_h_t22_8h.html#ac5fec37bb377bd7e761d5ca568d9bd0d">DHT22_get_hum</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>uint8_t * <a class="code hl_function" href="_d_h_t22_8h.html#aba8693dcd35f911a7db0ef7240b4bd5d">DHT22_get_hum_string</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="keywordtype">void</span> <a class="code hl_function" href="_d_h_t22_8h.html#a7bd49dff3ca4176e0c930d8785817fc1">delay_ms</a>(uint32_t delay);</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="preprocessor">#endif </span><span class="comment">/* DHT22_INC_DHT22_H_ */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="a_d_h_t22_8h_html_a2b21255bd7f7192db778983b15089208"><div class="ttname"><a href="_d_h_t22_8h.html#a2b21255bd7f7192db778983b15089208">bool_t</a></div><div class="ttdeci">bool bool_t</div><div class="ttdef"><b>Definition:</b> DHT22.h:63</div></div>
+<div class="ttc" id="a_d_h_t22_8h_html_a44e3c3ffb1640f3c1d03419a1ba6580c"><div class="ttname"><a href="_d_h_t22_8h.html#a44e3c3ffb1640f3c1d03419a1ba6580c">DHT22_get_temp</a></div><div class="ttdeci">float DHT22_get_temp(void)</div><div class="ttdoc">Solicita el valor de temperatura.</div><div class="ttdef"><b>Definition:</b> DHT22.c:67</div></div>
+<div class="ttc" id="a_d_h_t22_8h_html_a65d7d452b7b0339ba40853687a3cd326"><div class="ttname"><a href="_d_h_t22_8h.html#a65d7d452b7b0339ba40853687a3cd326">DHT22_init</a></div><div class="ttdeci">bool_t DHT22_init(uint16_t _pin, uint8_t _port)</div><div class="ttdoc">Inicializa las funciones de lectura del DHT22 en el GPIO asignado.</div><div class="ttdef"><b>Definition:</b> DHT22.c:38</div></div>
+<div class="ttc" id="a_d_h_t22_8h_html_a7bd49dff3ca4176e0c930d8785817fc1"><div class="ttname"><a href="_d_h_t22_8h.html#a7bd49dff3ca4176e0c930d8785817fc1">delay_ms</a></div><div class="ttdeci">void delay_ms(uint32_t delay)</div><div class="ttdoc">Delay en milisegundos.</div><div class="ttdef"><b>Definition:</b> DHT22.c:210</div></div>
+<div class="ttc" id="a_d_h_t22_8h_html_a7c9b27436e57133d990e77d18e5bcd40"><div class="ttname"><a href="_d_h_t22_8h.html#a7c9b27436e57133d990e77d18e5bcd40">DHT22_get_temp_string</a></div><div class="ttdeci">uint8_t * DHT22_get_temp_string(void)</div><div class="ttdoc">Solicita el valor de temperatura.</div><div class="ttdef"><b>Definition:</b> DHT22.c:81</div></div>
+<div class="ttc" id="a_d_h_t22_8h_html_aba8693dcd35f911a7db0ef7240b4bd5d"><div class="ttname"><a href="_d_h_t22_8h.html#aba8693dcd35f911a7db0ef7240b4bd5d">DHT22_get_hum_string</a></div><div class="ttdeci">uint8_t * DHT22_get_hum_string(void)</div><div class="ttdoc">Solicita el valor de humedad.</div><div class="ttdef"><b>Definition:</b> DHT22.c:109</div></div>
+<div class="ttc" id="a_d_h_t22_8h_html_ac5fec37bb377bd7e761d5ca568d9bd0d"><div class="ttname"><a href="_d_h_t22_8h.html#ac5fec37bb377bd7e761d5ca568d9bd0d">DHT22_get_hum</a></div><div class="ttdeci">float DHT22_get_hum(void)</div><div class="ttdoc">Solicita el valor de humedad.</div><div class="ttdef"><b>Definition:</b> DHT22.c:95</div></div>
+<div class="ttc" id="astruct_d_h_t22__sensor_html"><div class="ttname"><a href="struct_d_h_t22__sensor.html">DHT22_sensor</a></div><div class="ttdoc">Estructura para almacenar variables del sensor DHT22.</div><div class="ttdef"><b>Definition:</b> DHT22.h:32</div></div>
+<div class="ttc" id="astruct_d_h_t22__sensor_html_a24d61a35b72d7299eb6b5f48e71a571b"><div class="ttname"><a href="struct_d_h_t22__sensor.html#a24d61a35b72d7299eb6b5f48e71a571b">DHT22_sensor::temp</a></div><div class="ttdeci">float temp</div><div class="ttdef"><b>Definition:</b> DHT22.h:40</div></div>
+<div class="ttc" id="astruct_d_h_t22__sensor_html_a38adb4de3d9d0391675c323d13503af7"><div class="ttname"><a href="struct_d_h_t22__sensor.html#a38adb4de3d9d0391675c323d13503af7">DHT22_sensor::hum</a></div><div class="ttdeci">float hum</div><div class="ttdef"><b>Definition:</b> DHT22.h:44</div></div>
+<div class="ttc" id="astruct_d_h_t22__sensor_html_a38b1073a17d7b10e6c87f0d97c0e8ab6"><div class="ttname"><a href="struct_d_h_t22__sensor.html#a38b1073a17d7b10e6c87f0d97c0e8ab6">DHT22_sensor::Pin</a></div><div class="ttdeci">uint16_t Pin</div><div class="ttdef"><b>Definition:</b> DHT22.h:34</div></div>
+<div class="ttc" id="astruct_d_h_t22__sensor_html_a43f075c6860a76cac1d6997d46b04f71"><div class="ttname"><a href="struct_d_h_t22__sensor.html#a43f075c6860a76cac1d6997d46b04f71">DHT22_sensor::time_last_call</a></div><div class="ttdeci">uint32_t time_last_call</div><div class="ttdef"><b>Definition:</b> DHT22.h:53</div></div>
+<div class="ttc" id="astruct_d_h_t22__sensor_html_a4b93121f04819fbab96346736fa720a9"><div class="ttname"><a href="struct_d_h_t22__sensor.html#a4b93121f04819fbab96346736fa720a9">DHT22_sensor::Port</a></div><div class="ttdeci">uint8_t Port</div><div class="ttdef"><b>Definition:</b> DHT22.h:36</div></div>
+<div class="ttc" id="astruct_d_h_t22__sensor_html_ac197c77d12c2aae3728375fb50680575"><div class="ttname"><a href="struct_d_h_t22__sensor.html#ac197c77d12c2aae3728375fb50680575">DHT22_sensor::validation</a></div><div class="ttdeci">uint8_t validation</div><div class="ttdef"><b>Definition:</b> DHT22.h:50</div></div>
+<div class="ttc" id="astruct_d_h_t22__sensor_html_aea695156e0a1f5efd267bb7b43c28633"><div class="ttname"><a href="struct_d_h_t22__sensor.html#aea695156e0a1f5efd267bb7b43c28633">DHT22_sensor::crude</a></div><div class="ttdeci">uint32_t crude</div><div class="ttdef"><b>Definition:</b> DHT22.h:48</div></div>
+</div><!-- fragment --></div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Generado por&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.5
+</small></address>
+</body>
+</html>
