@@ -1,7 +1,8 @@
-../Drivers/DHT22/src/DHT22.c:49:6:DHT22_init	24	static
-../Drivers/DHT22/src/DHT22.c:76:7:DHT22_get_temp	16	static
-../Drivers/DHT22/src/DHT22.c:90:11:DHT22_get_temp_string	16	static
-../Drivers/DHT22/src/DHT22.c:104:7:DHT22_get_hum	16	static
-../Drivers/DHT22/src/DHT22.c:118:11:DHT22_get_hum_string	16	static
-../Drivers/DHT22/src/DHT22.c:134:13:decodificar	32	static
-../Drivers/DHT22/src/DHT22.c:183:11:uint_to_string	32	static
+../Drivers/DHT22/src/DHT22.c:37:8:DHT22_init	16	static
+../Drivers/DHT22/src/DHT22.c:66:7:DHT22_get_temp	8	static
+../Drivers/DHT22/src/DHT22.c:80:11:DHT22_get_temp_string	8	static
+../Drivers/DHT22/src/DHT22.c:94:7:DHT22_get_hum	8	static
+../Drivers/DHT22/src/DHT22.c:108:11:DHT22_get_hum_string	8	static
+../Drivers/DHT22/src/DHT22.c:122:13:decodificar	24	static
+../Drivers/DHT22/src/DHT22.c:171:11:uint_to_string	32	static
+../Drivers/DHT22/src/DHT22.c:201:6:delay_ms	16	static

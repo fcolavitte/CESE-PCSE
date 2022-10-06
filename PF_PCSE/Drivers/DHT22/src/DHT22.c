@@ -3,182 +3,170 @@
  *
  *  Created on: 27 sep. 2022
  *      Author: Facundo Colavitte
+ *
+ *  Driver documentation:
+ *  	https://github.com/fcolavitte/CESE-PCSE.git
  */
 #include "DHT22.h"
-#include "API_uart.h"
-
 
 
 /*Extern functions -------------------------------------------------------------*/
 extern uint32_t tiempo_actual(void);
-extern void GPIO_set_config(uint8_t * GPIO_port, uint8_t GPIO_num);
-extern void delay_ms(uint32_t delay);
-extern void GPIO_write(uint8_t * GPIO_port, uint8_t GPIO_num, bool_t GPIO_state);
+extern void GPIO_set_config(uint8_t GPIO_port, uint8_t GPIO_num);
+extern void port_delay_ms(uint32_t delay);
+extern void GPIO_write(uint8_t GPIO_port, uint8_t GPIO_num, bool_t GPIO_state);
 extern void reset_timer();
 extern bool_t is_pin(DHT22_sensor * DHT22_struct);
 
 
 /*Functions --------------------------------------------------------------------*/
-void DHT22_init(DHT22_sensor * DHT22_struct);
-float DHT22_get_temp(DHT22_sensor * DHT22_struct);
-uint8_t * DHT22_get_temp_string(DHT22_sensor * DHT22_struct);
-float DHT22_get_hum(DHT22_sensor * DHT22_struct);
-uint8_t * DHT22_get_hum_string(DHT22_sensor * DHT22_struct);
-void tomar_lectura(DHT22_sensor * DHT22_struct);
-static void decodificar(DHT22_sensor * DHT22_struct);
+static void decodificar(void);
 uint8_t *uint_to_string(uint32_t numero);
 
 
-
 /*Variables Globales ------------------------------------------------------------*/
-extern DHT22_sensor _DHT22;
+DHT22_sensor _DHT22;
 static uint8_t string_uint[11];
-
-static const uint8_t inicio_bit_0=2;	/*Primer interrupción es cuando el DHT toma el control del canal y comienza a confirmar.
-										 *Segunda interrupción es cuando el DHT termina de confirmar y está por -
-										 *- empezar a transmitir el bit 0.*/
-static const uint8_t pos_last_bit_data=33;
-
 
 
 /*
  * @brief	Inicializa el DHT22 con los valores de la estructura cargada
- * @param	Puntero a estructura del DHT22
+ * @param	Número de PIN del port. de 0x0000 a 0xffff, un único bit en 1.
  * @return	None
  */
-void DHT22_init(DHT22_sensor * DHT22_struct){
-	if(is_pin(DHT22_struct)){
-		/*Cargar estructura como 0*/
-		DHT22_struct->data.temp = 0;
-		DHT22_struct->data.temp_string[0] = '\0';
-		DHT22_struct->data.hum  = 0;
-		DHT22_struct->data.hum_string[0]  = '\0';
-		DHT22_struct->data.crude = 0;
-		DHT22_struct->data.validation = 0;
-		DHT22_struct->time_last_call = 0;
-		DHT22_struct->status = DHT_OK;
-		for(uint8_t i=0;i<(sizeof(_DHT22.T_Array)/sizeof(_DHT22.T_Array[0]));i++){
-			DHT22_struct->T_Array[i]=0;
-		}
+bool_t DHT22_init(uint16_t _pin, uint8_t _port){
+	if(is_pin(_pin)){
 
-		GPIO_set_config(DHT22_struct->Port, DHT22_struct->Pin);
+		_DHT22.Pin=_pin;
+		_DHT22.Port=_port;
 
-		GPIO_write(DHT22_struct->Port, DHT22_struct->Pin, 1);
-		//tomar_lectura(DHT22_struct);
+		_DHT22.data.temp = 0;
+		_DHT22.data.temp_string[0] = '\0';
+		_DHT22.data.hum  = 0;
+		_DHT22.data.hum_string[0]  = '\0';
+		_DHT22.data.crude = 0;
+		_DHT22.data.validation = 0;
+		_DHT22.time_last_call = 0;
+		_DHT22.status = DHT_OK;
+
+		GPIO_set_config(_DHT22.Port, _DHT22.Pin);
+
+		GPIO_write(_DHT22.Port, _DHT22.Pin, 1);
+
+		return 1;
 	}
+	return 0;
 }
+
 
 /*
  * @brief	Solicita el valor de temperatura
- * @param	Puntero a estructura del DHT22
  * @return	Temperatura en grados celcius
  */
-float DHT22_get_temp(DHT22_sensor * DHT22_struct){
+float DHT22_get_temp(void){
 	if(_DHT22.status == DHT_OK){
-		decodificar(&_DHT22);
-		return DHT22_struct->data.temp;
+		decodificar();
+		return _DHT22.data.temp;
 	} else {
 		return 0;
 	}
 }
+
 
 /*
  * @brief	Solicita el valor de temperatura
- * @param	Puntero a estructura del DHT22
- * @return	Temperatura en grados celcius en String
+ * @return	Temperatura en grados celcius en formato String
  */
-uint8_t * DHT22_get_temp_string(DHT22_sensor * DHT22_struct){
+uint8_t * DHT22_get_temp_string(void){
 	if(_DHT22.status == DHT_OK){
-		decodificar(&_DHT22);
-		return DHT22_struct->data.temp_string;
+		decodificar();
+		return _DHT22.data.temp_string;
 	} else {
-		return "Null";
+		return (uint8_t *)"Null";
 	}
 }
 
+
 /*
  * @brief	Solicita el valor de humedad
- * @param	Puntero a estructura del DHT22
  * @return	Humedad
  */
-float DHT22_get_hum(DHT22_sensor * DHT22_struct){
+float DHT22_get_hum(void){
 	if(_DHT22.status == DHT_OK){
-		decodificar(&_DHT22);
-		return DHT22_struct->data.hum;
+		decodificar();
+		return _DHT22.data.hum;
 	} else {
 		return 0;
 	}
 }
 
+
 /*
  * @brief	Solicita el valor de humedad
- * @param	Puntero a estructura del DHT22
- * @return	Humedad en String
+ * @return	Humedad en formato String
  */
-uint8_t * DHT22_get_hum_string(DHT22_sensor * DHT22_struct){
+uint8_t * DHT22_get_hum_string(void){
 	if(_DHT22.status == DHT_OK){
-		decodificar(&_DHT22);
-		return DHT22_struct->data.hum_string;
+		decodificar();
+		return _DHT22.data.hum_string;
 	} else {
-		return "Null";
+		return (uint8_t *)"Null";
 	}
 }
 
 
 /*
- * @brief	Traduce los tiempos guardados en el array T_Array[85] y guarda los datos en la sub-estructura data
- * @param	Puntero a estructura del DHT22
- * @return	None
+ * @brief	Traduce los valores guardados en _DHT22.data.crude
  * @Note	No se contempla la verificación de la comunicación
  */
-static void decodificar(DHT22_sensor * DHT22_struct){
+static void decodificar(void){
 
-	float humidity = (float)(DHT22_struct->data.crude/(1<<16));
+	float humidity = (float)(_DHT22.data.crude/(1<<16));
 	humidity = humidity/10;
-	float temperature = (float)(DHT22_struct->data.crude%(1<<15));
+	float temperature = (float)(_DHT22.data.crude%(1<<15));
 	temperature = temperature/10;
-	DHT22_struct->data.hum = humidity;
-	DHT22_struct->data.temp = temperature;
+	_DHT22.data.hum = humidity;
+	_DHT22.data.temp = temperature;
 
 	/*variables tipo string*/
 	uint8_t * data_string = uint_to_string((uint32_t)(humidity*10));
 	if(humidity<10){
-		DHT22_struct->data.hum_string[0]=data_string[0];
-		DHT22_struct->data.hum_string[1]=',';
-		DHT22_struct->data.hum_string[2]=data_string[1];
-		DHT22_struct->data.hum_string[3]='%';
-		DHT22_struct->data.hum_string[4]='\0';
+		_DHT22.data.hum_string[0]=data_string[0];
+		_DHT22.data.hum_string[1]=',';
+		_DHT22.data.hum_string[2]=data_string[1];
+		_DHT22.data.hum_string[3]='%';
+		_DHT22.data.hum_string[4]='\0';
 	} else {
-		DHT22_struct->data.hum_string[0]=data_string[0];
-		DHT22_struct->data.hum_string[1]=data_string[1];
-		DHT22_struct->data.hum_string[2]=',';
-		DHT22_struct->data.hum_string[3]=data_string[2];
-		DHT22_struct->data.hum_string[4]='%';
-		DHT22_struct->data.hum_string[5]='\0';
+		_DHT22.data.hum_string[0]=data_string[0];
+		_DHT22.data.hum_string[1]=data_string[1];
+		_DHT22.data.hum_string[2]=',';
+		_DHT22.data.hum_string[3]=data_string[2];
+		_DHT22.data.hum_string[4]='%';
+		_DHT22.data.hum_string[5]='\0';
 	}
 
 	data_string = uint_to_string((uint32_t)(temperature*10));
 	if(temperature<10){
-		DHT22_struct->data.temp_string[0]=data_string[0];
-		DHT22_struct->data.temp_string[1]=',';
-		DHT22_struct->data.temp_string[2]=data_string[1];
-		DHT22_struct->data.temp_string[3]='C';	/*No toma el '°'*/
-		DHT22_struct->data.temp_string[4]='\0';
+		_DHT22.data.temp_string[0]=data_string[0];
+		_DHT22.data.temp_string[1]=',';
+		_DHT22.data.temp_string[2]=data_string[1];
+		_DHT22.data.temp_string[3]='C';	/*No toma el '°'*/
+		_DHT22.data.temp_string[4]='\0';
 	} else {
-		DHT22_struct->data.temp_string[0]=data_string[0];
-		DHT22_struct->data.temp_string[1]=data_string[1];
-		DHT22_struct->data.temp_string[2]=',';
-		DHT22_struct->data.temp_string[3]=data_string[2];
-		DHT22_struct->data.temp_string[4]='C';	/*No toma el '°'*/
-		DHT22_struct->data.temp_string[5]='\0';
+		_DHT22.data.temp_string[0]=data_string[0];
+		_DHT22.data.temp_string[1]=data_string[1];
+		_DHT22.data.temp_string[2]=',';
+		_DHT22.data.temp_string[3]=data_string[2];
+		_DHT22.data.temp_string[4]='C';	/*No toma el '°'*/
+		_DHT22.data.temp_string[5]='\0';
 	}
 }
 
 
 /*
- * @brief	Convierte entero a string
+ * @brief	Convierte entero sin signo a String
  * @param	Número a convertir
- * @return	Número en formato string
+ * @return	Número en formato String
  */
 uint8_t * uint_to_string(uint32_t numero){
 	uint32_t divisor;
@@ -209,3 +197,8 @@ uint8_t * uint_to_string(uint32_t numero){
 	string_uint[i] = '\0';
 	return string_uint;
 }
+
+void delay_ms(uint32_t delay) {
+	port_delay_ms(delay);
+}
+

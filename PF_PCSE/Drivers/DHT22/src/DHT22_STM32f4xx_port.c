@@ -3,6 +3,9 @@
  *
  *  Created on: 27 sep. 2022
  *      Author: Facundo Colavitte
+ *
+ *  Driver documentation:
+ *  	https://github.com/fcolavitte/CESE-PCSE.git
  */
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_gpio.h"
@@ -16,15 +19,17 @@
 
 #define T_corte 90 /*Tiempo en us que diferencia un 1 de un 0 en la comunicación*/
 
-	/* Primera interrupción pertenece a liberación del canal por parte del STM32 	*
-	 * y la segunda es por confirmación de DHT22									*/
+/*
+ *  Primera interrupción pertenece a liberación del canal por parte del STM32
+ *  y la segunda es por confirmación de DHT22
+ */
 #define _inicio_bit_0 2
 
 
 /*Functions GPIO ------------------------------------------------------------------------*/
 extern void tomar_lectura(DHT22_sensor * DHT22_struct);
-void GPIO_set_config(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num);
-void GPIO_write(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num, bool_t GPIO_state);
+void GPIO_set_config(uint8_t GPIO_port, uint16_t GPIO_num);
+void GPIO_write(uint8_t GPIO_port, uint16_t GPIO_num, bool_t GPIO_state);
 bool_t is_pin(uint16_t GPIO_num);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 void EXTI9_5_IRQHandler(void);
@@ -32,7 +37,7 @@ void EXTI9_5_IRQHandler(void);
 /*Functions time & timer ----------------------------------------------------------------*/
 void reset_timer(void);
 uint32_t tiempo_actual(void);
-void delay_ms(uint32_t delay);
+void port_delay_ms(uint32_t delay);
 void Timer_Init(void);
 HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim);
 HAL_StatusTypeDef HAL_TIM_Base_Start(TIM_HandleTypeDef *htim);
@@ -42,7 +47,7 @@ void TIM_Base_SetConfig(TIM_TypeDef *TIMx, TIM_Base_InitTypeDef *Structure);
 
 /*Variables -----------------------------------------------------------------------*/
 TIM_HandleTypeDef hTim2;		/*Handler para Timer2*/
-DHT22_sensor _DHT22;			/*Sensor DHT22 en que se está realizando la lectura*/
+extern DHT22_sensor _DHT22;			/*Sensor DHT22 en que se está realizando la lectura*/
 uint8_t T_Array_counter = 0;	/*Contador para recorrer T_Array de _DHT22*/
 uint32_t cont_timer=0;			/*Cuenta los ms con interrupciones*/
 
@@ -50,33 +55,68 @@ uint32_t cont_timer=0;			/*Cuenta los ms con interrupciones*/
 
 /*---------------------------------------------------- GPIO -------------------------------------------------------*/
 
+
+
+GPIO_TypeDef  * _HAL_PORT_DECODE(uint8_t Port){
+	GPIO_TypeDef  * _HAL_PORT;
+	switch (Port){
+		case PORT_A:
+			_HAL_PORT = GPIOA;
+		break;
+		case PORT_B:
+			_HAL_PORT = GPIOB;
+		break;
+		case PORT_C:
+			_HAL_PORT = GPIOC;
+		break;
+		case PORT_D:
+			_HAL_PORT = GPIOD;
+		break;
+		case PORT_E:
+			return GPIOE;
+		break;
+		case PORT_F:
+			_HAL_PORT = GPIOF;
+		break;
+		default:
+			_HAL_PORT = GPIOG;
+		break;
+	}
+	return _HAL_PORT;
+}
+
+
 /*
  * @brief	Configurar GPIO para comunicación con DHT22
- * @param	Puntero a estructura delay
- * @return	None
- * @note	GPIO modo salida (permite leer PIN), open-drain con interrupciones por flanco ascendente y descendente
+ * @param	PORT_A a PORTG
+ * @param	Pin, en caso de STM32 va de GPIO_PIN_0 a GPIO_PIN_15
+ * @note	GPIO modo salida, open-drain con interrupciones por flanco descendente
  */
-void GPIO_set_config(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num){
+void GPIO_set_config(uint8_t GPIO_port, uint16_t GPIO_num){
 	if(is_pin(GPIO_num)){
 		//Preparar configuración PIN
 		GPIO_InitTypeDef PIN_DHT22_config;
 
-		if(GPIOA == GPIO_port){__HAL_RCC_GPIOA_CLK_ENABLE();}
-		if(GPIOB == GPIO_port){__HAL_RCC_GPIOB_CLK_ENABLE();}
-		if(GPIOC == GPIO_port){__HAL_RCC_GPIOC_CLK_ENABLE();}
-		if(GPIOD == GPIO_port){__HAL_RCC_GPIOD_CLK_ENABLE();}
-		if(GPIOE == GPIO_port){__HAL_RCC_GPIOE_CLK_ENABLE();}
-		if(GPIOF == GPIO_port){__HAL_RCC_GPIOF_CLK_ENABLE();}
-		if(GPIOG == GPIO_port){__HAL_RCC_GPIOG_CLK_ENABLE();}
-
+		if(PORT_A == GPIO_port){__HAL_RCC_GPIOA_CLK_ENABLE();}
+		if(PORT_B == GPIO_port){__HAL_RCC_GPIOB_CLK_ENABLE();}
+		if(PORT_C == GPIO_port){__HAL_RCC_GPIOC_CLK_ENABLE();}
+		if(PORT_D == GPIO_port){__HAL_RCC_GPIOD_CLK_ENABLE();}
+		if(PORT_E == GPIO_port){__HAL_RCC_GPIOE_CLK_ENABLE();}
+		if(PORT_F == GPIO_port){__HAL_RCC_GPIOF_CLK_ENABLE();}
+		if(PORT_G == GPIO_port){__HAL_RCC_GPIOG_CLK_ENABLE();}
 
 		PIN_DHT22_config.Pin = GPIO_num;
 		PIN_DHT22_config.Mode = MODE_OUTPUT | OUTPUT_OD | EXTI_IT | TRIGGER_FALLING;
 		PIN_DHT22_config.Pull = GPIO_PULLUP;
 		PIN_DHT22_config.Speed = GPIO_SPEED_FREQ_HIGH;
-		//Cargar configuración PIN
-		HAL_GPIO_Init(GPIO_port, &PIN_DHT22_config);	//Modificar por GPIO_port y GPIO_num
 
+		GPIO_TypeDef  * _HAL_PORT;
+		_HAL_PORT=_HAL_PORT_DECODE(GPIO_port);
+
+		//Cargar configuración PIN
+		HAL_GPIO_Init(_HAL_PORT, &PIN_DHT22_config);
+
+		//Interrupción
 		IRQn_Type IRQn;
 		switch (GPIO_num){
 			case GPIO_PIN_0:
@@ -102,13 +142,11 @@ void GPIO_set_config(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num){
 				}
 			break;
 		}
+
 		HAL_NVIC_SetPriority(IRQn,0,0);
 		NVIC_EnableIRQ(IRQn);
 
-		/*Inicializar Timer*/
 		Timer_Init();
-
-
 	}
 }
 
@@ -116,22 +154,24 @@ void GPIO_set_config(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num){
 
 /*
  * @brief	Poner en bajo o liberar PIN
+ * @param	Port. Valores válidos PORT_A a PORT_G
  * @param	Número de PIN
- * @param	Estado (bajo u open)
- * @return	None
+ * @param	Estado a setear. 0=>Bajo. 1=>Open.
  * @note	GPIO en modo open-drain
  */
-void GPIO_write(GPIO_TypeDef * GPIO_port, uint16_t GPIO_num, bool_t GPIO_state){
+void GPIO_write(uint8_t _GPIO_port, uint16_t GPIO_num, bool_t GPIO_state){
+
 	if(is_pin(GPIO_num)){
+
+		GPIO_TypeDef * GPIO_port;
+		GPIO_port = _HAL_PORT_DECODE(_GPIO_port);
+
 		if(GPIO_state) {
 			HAL_GPIO_WritePin(GPIO_port, GPIO_num, GPIO_PIN_SET);
 		} else {
 			HAL_GPIO_WritePin(GPIO_port, GPIO_num, GPIO_PIN_RESET);
 		}
 
-		/*Selecciona el pin al que está conectado el DHT a medir*/
-		_DHT22.Port = GPIO_port;
-		_DHT22.Pin = GPIO_num;
 	} else {
 		/*Error en el número de PIN*/
 	}
@@ -251,7 +291,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 			}
 		}
 		T_Array_counter++;
-		if(T_Array_counter> (sizeof(_DHT22.T_Array)/sizeof(_DHT22.T_Array[0]))-1 ){
+		if(T_Array_counter> 39+_inicio_bit_0){
 			T_Array_counter=0;
 		}
 
@@ -276,7 +316,7 @@ uint32_t tiempo_actual(void){
  * @param	Tiempo en milisegundos a esperar
  * @return	None
  */
-void delay_ms(uint32_t delay){
+void port_delay_ms(uint32_t delay){
 	HAL_Delay(delay);
 }
 
@@ -294,34 +334,37 @@ void reset_timer(void){
 
 /*
  * @brief	Inicializa el Timer 2
- * @param	None
- * @return	None
+ * @note	Cuenta cada 1us e interrupción cada 1ms
  */
 void Timer_Init(void){
 	__HAL_RCC_TIM2_CLK_ENABLE();
     hTim2.Instance = TIM2;
-    hTim2.Init.Prescaler = 80-1;//Para que cuente en us
+    hTim2.Init.Prescaler = 80-1;							/*Valor del contador del timer en us*/
     hTim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-    hTim2.Init.Period = 1000-1;	//1ms
+    hTim2.Init.Period = 1000-1;								/*Interrupción cada 1ms*/
     hTim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     hTim2.Init.RepetitionCounter = 0;
     hTim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     HAL_TIM_Base_Init(&hTim2);
 
+    //Selección del reloj interno
     TIM_ClockConfigTypeDef TimClock = {0};
     TimClock.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
 	HAL_TIM_ConfigClockSource(&hTim2, &TimClock);
 
+	//Configurar reloj como master
 	TIM_MasterConfigTypeDef TimMaster = {0};
 	TimMaster.MasterSlaveMode = TIM_SLAVEMODE_DISABLE;
 	TimMaster.MasterOutputTrigger = TIM_TRGO_RESET;
 	HAL_TIMEx_MasterConfigSynchronization(&hTim2, &TimMaster);
 
+	//Habilitar interrupción del timer
 	HAL_NVIC_SetPriority(TIM2_IRQn,5,5);
 	NVIC_EnableIRQ(TIM2_IRQn);
 
 	HAL_TIM_Base_Start_IT(&hTim2);
 }
+
 
 /*
  * @brief	Manejador de interrupción por Timer2

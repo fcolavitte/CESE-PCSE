@@ -14,52 +14,24 @@
 //Functions prototypes
 static void SystemClock_Config(void);
 static void Error_Handler(void);
-extern uint8_t *uint_to_string(uint32_t numero);
-extern void delay_ms(uint32_t delay);
-//Global Variables
-DHT22_sensor DHT22_1;
+
 
 
 int main(void) {
   HAL_Init();
   SystemClock_Config(); // Configure the system clock to 180 MHz
 
-
   uartInit();
 
-  DHT22_1.Pin=GPIO_PIN_4;	//PE_4
-  DHT22_1.Port=GPIOE;		//Port E
-  DHT22_init(&DHT22_1);
-
-  extern DHT22_sensor _DHT22;
-
-  BSP_LED_Init(LED2);
+  DHT22_init(GPIO_PIN_4, PORT_E);
 
   while (1) {
 
-
-	  /*uartSendString("\r\nTemp: ");
-	  uartSendString(DHT22_get_temp_string(&DHT22_1));
-	  uartSendString("\r\nHum: ");
-	  uartSendString(DHT22_get_hum_string(&DHT22_1));
-	  uartSendString("\r\nCrude: ");
-	  uartSendString(uint_to_string(DHT22_1.data.crude));
-	  uartSendString("\r\nValidation: ");
-	  uartSendString(uint_to_string(DHT22_1.data.validation));
-	  uartSendString("\r\n");
-	  DHT22_1.data.validation =  0;
-	  DHT22_1.data.crude =  0;*/
-
-
-	  uartSendString("\r\nTemp: ");
-	  uartSendString(DHT22_get_temp_string(&_DHT22));
-	  uartSendString("\r\nHum: ");
-	  uartSendString(DHT22_get_hum_string(&_DHT22));
-	  uartSendString("\r\nCrude: ");
-	  uartSendString(uint_to_string(_DHT22.data.crude));
-	  uartSendString("\r\nValidation: ");
-	  uartSendString(uint_to_string(_DHT22.data.validation));
-	  uartSendString("\r\n");
+	  uartSendString((uint8_t *)"\r\nTemp: ");
+	  uartSendString(DHT22_get_temp_string());
+	  uartSendString((uint8_t *)"\r\nHum: ");
+	  uartSendString(DHT22_get_hum_string());
+	  uartSendString((uint8_t *)"\r\n");
 
 	  delay_ms(2000);
 

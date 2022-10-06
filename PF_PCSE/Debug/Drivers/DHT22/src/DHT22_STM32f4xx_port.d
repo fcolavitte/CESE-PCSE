@@ -1,4 +1,5 @@
-Drivers/DHT22/src/port.o: ../Drivers/DHT22/src/port.c \
+Drivers/DHT22/src/DHT22_STM32f4xx_port.o: \
+ ../Drivers/DHT22/src/DHT22_STM32f4xx_port.c \
  C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Inc/stm32f4xx_hal_conf.h \
  C:/Users/Facu/Desktop/UBA\ Esp\ en\ Sist\ Emb/Materias\ CESE/PCSE/CESE-PCSE/PF_PCSE/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \

@@ -6,15 +6,15 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../Drivers/DHT22/src/DHT22.c \
-../Drivers/DHT22/src/port.c 
+../Drivers/DHT22/src/DHT22_STM32f4xx_port.c 
 
 OBJS += \
 ./Drivers/DHT22/src/DHT22.o \
-./Drivers/DHT22/src/port.o 
+./Drivers/DHT22/src/DHT22_STM32f4xx_port.o 
 
 C_DEPS += \
 ./Drivers/DHT22/src/DHT22.d \
-./Drivers/DHT22/src/port.d 
+./Drivers/DHT22/src/DHT22_STM32f4xx_port.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -24,7 +24,7 @@ Drivers/DHT22/src/%.o Drivers/DHT22/src/%.su: ../Drivers/DHT22/src/%.c Drivers/D
 clean: clean-Drivers-2f-DHT22-2f-src
 
 clean-Drivers-2f-DHT22-2f-src:
-	-$(RM) ./Drivers/DHT22/src/DHT22.d ./Drivers/DHT22/src/DHT22.o ./Drivers/DHT22/src/DHT22.su ./Drivers/DHT22/src/port.d ./Drivers/DHT22/src/port.o ./Drivers/DHT22/src/port.su
+	-$(RM) ./Drivers/DHT22/src/DHT22.d ./Drivers/DHT22/src/DHT22.o ./Drivers/DHT22/src/DHT22.su ./Drivers/DHT22/src/DHT22_STM32f4xx_port.d ./Drivers/DHT22/src/DHT22_STM32f4xx_port.o ./Drivers/DHT22/src/DHT22_STM32f4xx_port.su
 
 .PHONY: clean-Drivers-2f-DHT22-2f-src
 
