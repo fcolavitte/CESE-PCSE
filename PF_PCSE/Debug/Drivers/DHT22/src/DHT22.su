@@ -1,8 +1,0 @@
-../Drivers/DHT22/src/DHT22.c:38:8:DHT22_init	16	static
-../Drivers/DHT22/src/DHT22.c:67:7:DHT22_get_temp	8	static
-../Drivers/DHT22/src/DHT22.c:81:11:DHT22_get_temp_string	8	static
-../Drivers/DHT22/src/DHT22.c:95:7:DHT22_get_hum	8	static
-../Drivers/DHT22/src/DHT22.c:109:11:DHT22_get_hum_string	8	static
-../Drivers/DHT22/src/DHT22.c:123:13:decodificar	24	static
-../Drivers/DHT22/src/DHT22.c:172:11:uint_to_string	32	static
-../Drivers/DHT22/src/DHT22.c:210:6:delay_ms	16	static
