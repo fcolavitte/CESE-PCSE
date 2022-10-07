@@ -74,7 +74,7 @@ bool_t DHT22_init(uint16_t _pin, uint8_t _port){
 /**
  * @brief	Solicita el valor de temperatura
  * @return	Temperatura en grados celcius. En caso de error devuelve valores inferiores a -900.
- * @note 	-911 ERR_COMMUNICATION, -992 DISCONECTED, -993 Tomando primer lectura, -994 CONNECTING.
+ * @note 	-911 ERR_COMMUNICATION, -992 DISCONECTED, -993 Tomando primer lectura, -994 CONNECTING, -999 Otros.
  */
 float DHT22_get_temp(void){
 	if(_DHT22.status==DHT_READED){
@@ -100,6 +100,9 @@ float DHT22_get_temp(void){
 		case DHT_CONNECTING:
 			_DHT22.data.temp = -994;		/*Todavía no se realizó primer lectura*/
 			break;
+		default:
+			_DHT22.data.temp = -999;
+			break;
 	}
 	return _DHT22.data.temp;
 }
@@ -108,7 +111,7 @@ float DHT22_get_temp(void){
 /**
  * @brief	Solicita el valor de temperatura
  * @return	Temperatura en grados celcius en formato String
- * @note 	E1 ERR_COMMUNICATION, E2 DISCONECTED, E3 Tomando primer lectura, E4 CONNECTING.
+ * @note 	E1 ERR_COMMUNICATION, E2 DISCONECTED, E3 Tomando primer lectura, E4 CONNECTING, E9 Otros.
  */
 uint8_t * DHT22_get_temp_string(void){
 	if(_DHT22.status==DHT_READED){
@@ -142,6 +145,11 @@ uint8_t * DHT22_get_temp_string(void){
 			_DHT22.data.temp_string[1] = '4';
 			_DHT22.data.temp_string[2] = '\0';		/*Todavía no se realizó primer lectura*/
 			break;
+		default:
+			_DHT22.data.temp_string[0] = 'E';
+			_DHT22.data.temp_string[1] = '9';
+			_DHT22.data.temp_string[2] = '\0';
+			break;
 	}
 	return _DHT22.data.temp_string;
 }
@@ -150,7 +158,7 @@ uint8_t * DHT22_get_temp_string(void){
 /**
  * @brief	Solicita el valor de humedad
  * @return	Humedad. En caso de error devuelve valores inferiores a -900.
- * @note 	-911 ERR_COMMUNICATION, -992 DISCONECTED, -993 Tomando primer lectura, -994 CONNECTING.
+ * @note 	-911 ERR_COMMUNICATION, -992 DISCONECTED, -993 Tomando primer lectura, -994 CONNECTING, -999 Otros.
  */
 float DHT22_get_hum(void){
 	if(_DHT22.status==DHT_READED){
@@ -176,6 +184,9 @@ float DHT22_get_hum(void){
 		case DHT_CONNECTING:
 			_DHT22.data.hum = -994;		/*Todavía no se realizó primer lectura*/
 			break;
+		default:
+			_DHT22.data.hum = -999;
+			break;
 	}
 	return _DHT22.data.hum;
 }
@@ -184,7 +195,7 @@ float DHT22_get_hum(void){
 /**
  * @brief	Solicita el valor de humedad
  * @return	Humedad en formato String
- * @note 	E1 ERR_COMMUNICATION, E2 DISCONECTED, E3 Tomando primer lectura, E4 CONNECTING.
+ * @note 	E1 ERR_COMMUNICATION, E2 DISCONECTED, E3 Tomando primer lectura, E4 CONNECTING, E9 Otros.
  */
 uint8_t * DHT22_get_hum_string(void){
 	if(_DHT22.status==DHT_READED){
@@ -218,6 +229,11 @@ uint8_t * DHT22_get_hum_string(void){
 			_DHT22.data.hum_string[1] = '4';
 			_DHT22.data.hum_string[2] = '\0';		/*Todavía no se realizó primer lectura*/
 			break;
+		default:
+			_DHT22.data.hum_string[0] = 'E';
+			_DHT22.data.hum_string[1] = '9';
+			_DHT22.data.hum_string[2] = '\0';
+			break;
 	}
 	return _DHT22.data.hum_string;
 }
@@ -225,7 +241,6 @@ uint8_t * DHT22_get_hum_string(void){
 
 /**
  * @brief	Traduce los valores guardados en _DHT22.data.crude
- * @Note	No se contempla la verificación de la comunicación
  */
 static void decodificar(void){
 	if(comrpobar_datos()){
@@ -362,6 +377,3 @@ void delay_ms(uint32_t delay) {
 uint8_t DHT22_get_status(void){
 	return _DHT22.status;
 }
-
-
-

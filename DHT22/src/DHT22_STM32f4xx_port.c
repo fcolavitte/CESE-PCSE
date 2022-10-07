@@ -400,5 +400,3 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	/*Si no hubo flancos descendentes durante 1ms tras pedir el dato*/
 	if(_DHT22.status == DHT_READING){_DHT22.status = ERR_DISCONECT;}
 }
-
-
