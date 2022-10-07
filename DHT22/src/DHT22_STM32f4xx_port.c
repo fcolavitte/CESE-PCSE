@@ -16,15 +16,19 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "API_uart.h"
 
+/**
+ * @brief Tiempo en us que diferencia un 1 de un 0 en la comunicación.
+ * 		  Incluye tanto tiempo en bajo como en alto para cada bit.
+ */
+#define T_corte 90
 
-#define T_corte 90 	/*Tiempo en us que diferencia un 1 de un 0 en la comunicación			*/
-					/*Incluye tanto tiempo en bajo como en alto para cada bit				*/
-
-
-#define _inicio_bit_0 2	/*Primera interrupción pertenece al inicio de la confirmación del	*/
-						/*DHT22 y la segunda es el final de la confirmación					*/
+/**
+ * @brief Número de bit que detecta la interrupción en el cual comienza los datos.
+ * @note  Primera interrupción pertenece al inicio de la confirmación del
+ * 		  DHT22 y la segunda es el final de la confirmación.
+ */
+#define _inicio_bit_0 2
 
 
 /*Functions GPIO ---------------------------------------------------------------------------*/
@@ -40,21 +44,34 @@ void reset_timer(void);
 uint32_t tiempo_actual(void);
 void port_delay_ms(uint32_t delay);
 void Timer_Init(void);
-
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 
 /*Variables --------------------------------------------------------------------------------*/
-TIM_HandleTypeDef hTim2;		/*Handler para Timer2										*/
-extern DHT22_sensor _DHT22;		/*Sensor DHT22 en que se está realizando la lectura			*/
-uint8_t T_Array_counter = 0;	/*Contador para recorrer T_Array de _DHT22					*/
-uint32_t cont_timer=0;			/*Cuenta los ms con interrupciones							*/
-
+/** Handler para Timer2											*/
+TIM_HandleTypeDef hTim2;
+/** Sensor DHT22 en que se está realizando la lectura			*/
+extern DHT22_sensor _DHT22;
+/** Contador para definir la posición de bits de la comunicación*/
+uint8_t T_Array_counter = 0;
+/** Cuenta los ms con interrupciones del Timer2					*/
+uint32_t cont_timer=0;
+/**
+ * Variable donde se guardan los bits en el proceso de lectura durante las interrupciones no se
+ * guardan directamente en _DHT22.data.crude para no modificar el valor mientras se lo decodifica
+ */
+extern uint32_t _data_crude;
+/**
+ * Variable donde se guardan los bits en el proceso de lectura durante las interrupciones no se
+ * guardan directamente en _DHT22.data.validation para no modificar el valor mientras se lo decodifica
+ */
+extern uint8_t _data_validation;
 
 
 
 /*----------------------------------------------- GPIO -------------------------------------------------------*/
 
 
-/*
+/**
  * @brief	Convierte variable PORT definida en DHT22.h a variable utilizada por la HAL para dicho puerto
  * @param	PORT_A a PORT_G
  * @param	Puntero a estructura PORT
@@ -75,7 +92,7 @@ GPIO_TypeDef  * _HAL_PORT_DECODE(uint8_t Port){
 			_HAL_PORT = GPIOD;
 		break;
 		case PORT_E:
-			return GPIOE;
+			_HAL_PORT = GPIOE;
 		break;
 		case PORT_F:
 			_HAL_PORT = GPIOF;
@@ -88,7 +105,7 @@ GPIO_TypeDef  * _HAL_PORT_DECODE(uint8_t Port){
 }
 
 
-/*
+/**
  * @brief	Configurar GPIO para comunicación con DHT22
  * @param	PORT_A a PORTG
  * @param	Pin, en caso de STM32 va de GPIO_PIN_0 a GPIO_PIN_15
@@ -154,7 +171,7 @@ void GPIO_set_config(uint8_t GPIO_port, uint16_t GPIO_num){
 
 
 
-/*
+/**
  * @brief	Poner en bajo o liberar PIN
  * @param	Port. Valores válidos PORT_A a PORT_G
  * @param	Número de PIN
@@ -181,7 +198,7 @@ void GPIO_write(uint8_t _GPIO_port, uint16_t GPIO_num, bool_t GPIO_state){
 
 
 
-/*
+/**
  * @brief	Verifica si el valor del pin es válido
  * @param	Número de PIN
  * @return	1 si es válido, sino devuelve 0
@@ -196,42 +213,42 @@ bool_t is_pin(uint16_t GPIO_num){
 
 /*-------------------------------------------- Interrupciones --------------------------------------------*/
 
-/*
+/**
  * @brief	Manejador de interrupción EXIT0
  */
 void EXTI0_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 }
 
-/*
+/**
  * @brief	Manejador de interrupción EXIT1
  */
 void EXTI1_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
 }
 
-/*
+/**
  * @brief	Manejador de interrupción EXIT2
  */
 void EXTI2_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
 }
 
-/*
+/**
  * @brief	Manejador de interrupción EXIT3
  */
 void EXTI3_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
 }
 
-/*
+/**
  * @brief	Manejador de interrupción EXIT4
  */
 void EXTI4_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
 }
 
-/*
+/**
  * @brief	Manejador de interrupción EXIT9_5
  */
 void EXTI9_5_IRQHandler(void){
@@ -242,7 +259,7 @@ void EXTI9_5_IRQHandler(void){
 	}
 }
 
-/*
+/**
  * @brief	Manejador de interrupción EXIT15_10
  */
 void EXTI15_10_IRQHandler (void){
@@ -254,7 +271,7 @@ void EXTI15_10_IRQHandler (void){
 }
 
 
-/*
+/**
  * @brief	Control de interrupción por PIN
  * @param	Número de PIN
  */
@@ -264,17 +281,19 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		_DHT22.status = DHT_READING;
 		/*Define si el pulso corresponde a un 0 o 1*/
 		if(new_bit>T_corte){new_bit=1;}else{new_bit=0;}
-
+		/*Lectura de los bits de humedad y temperatura*/
 		if(T_Array_counter>=_inicio_bit_0 && T_Array_counter<32+_inicio_bit_0){
 			new_bit = new_bit<<(31+_inicio_bit_0-T_Array_counter);
-			_DHT22.data.crude |= new_bit;
+			_data_crude |= new_bit;
 		}
+		/*Lectura de los bits de paridad*/
 		if(T_Array_counter>=32+_inicio_bit_0 && T_Array_counter<40+_inicio_bit_0){
 			new_bit = new_bit<<(39+_inicio_bit_0-T_Array_counter);
-			_DHT22.data.validation |= new_bit;
-			if(T_Array_counter==39+_inicio_bit_0){	/*Se completó la lectura*/
+			_data_validation |= new_bit;
+			/*Si se completó la lectura*/
+			if(T_Array_counter==39+_inicio_bit_0){
 				cont_timer=0;
-				_DHT22.status = DHT_OK;
+				_DHT22.status = DHT_READED;
 			}
 		}
 		T_Array_counter++;
@@ -289,7 +308,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 
 /*------------------------------------------------ Time --------------------------------------------------*/
-/*
+/**
  * @brief	Devuelve el tiempo actual desde que está corriendo el programa
  * @return	Tiempo desde que el uC está encendido en milisegundos
  */
@@ -297,7 +316,7 @@ uint32_t tiempo_actual(void){
 	return HAL_GetTick();
 }
 
-/*
+/**
  * @brief	CGenerar delay bloqueante en milisegundos
  * @param	Tiempo en milisegundos a esperar
  */
@@ -308,7 +327,7 @@ void port_delay_ms(uint32_t delay){
 
 /*------------------------------------------------ TIMER -------------------------------------------------*/
 
-/*
+/**
  * @brief	Resetea el tiempo del timer 2
  */
 void reset_timer(void){
@@ -317,7 +336,7 @@ void reset_timer(void){
 }
 
 
-/*
+/**
  * @brief	Inicializa el Timer 2
  * @note	Cuenta cada 1us e interrupción cada 1ms
  */
@@ -351,7 +370,7 @@ void Timer_Init(void){
 }
 
 
-/*
+/**
  * @brief	Manejador de interrupción por Timer2
  */
 void TIM2_IRQHandler (void){
@@ -359,25 +378,27 @@ void TIM2_IRQHandler (void){
 }
 
 
-/*
+/**
  * @brief	Control de interrupción por Timer2
  * @param	Manejador del Timer2
  * @Note	Ocurre una interrupcion cada 1ms
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	cont_timer++;
-	if(cont_timer>9000){
+	if(cont_timer>9000){	/*Desbordamiento en caso de que la lectura no se haya completado*/
 		cont_timer=0;
 	}
-	if(cont_timer>2501){
+	if(cont_timer>2501){	/*Liberar pin para esperar respuesta del DHT22*/
 		T_Array_counter=0;
 		GPIO_write(_DHT22.Port, _DHT22.Pin, 1);
-	}else if(cont_timer>=2500){
-		_DHT22.data.crude=0;
-		_DHT22.data.validation=0;
+	}else if(cont_timer>=2500){	/*Iniciar lectura poniendo pin en bajo*/
+		_data_crude=0;
+		_data_validation=0;
 		GPIO_write(_DHT22.Port, _DHT22.Pin, 0);
 		T_Array_counter=0;
 	}
+	/*Si no hubo flancos descendentes durante 1ms tras pedir el dato*/
+	if(_DHT22.status == DHT_READING){_DHT22.status = ERR_DISCONECT;}
 }
 
 

@@ -26,6 +26,8 @@
 #define PORT_F 6
 #define PORT_G 7
 
+
+
 /**
  * @brief Estructura para almacenar variables del sensor DHT22
  */
@@ -39,7 +41,7 @@ typedef struct {
 		/** Temperatura en °C. El DHT22 tiene una precisión de 0,1°C*/
 		float 	 temp;
 		/** Temperatura en formato String en grados centigrados*/
-		uint8_t  temp_string[6];
+		uint8_t  temp_string[7];
 		/** Humedad en %*/
 		float 	 hum;
 		/** Humedad en formato String*/
@@ -56,11 +58,15 @@ typedef struct {
 		DHT_OK = 0,
 		ERR_COMMUNICATION = 1,
 		ERR_DISCONECT = 2,
-		DHT_READING = 3
+		DHT_READING = 3,
+		DHT_READED = 4,
+		DHT_CONNECTING = 5
 	} status;
 } DHT22_sensor;
 
+
 typedef bool bool_t;
+
 
 /*--------------------------------------- PUBLIC FUNCTIONS ------------------------------------------------*/
 
@@ -101,5 +107,12 @@ uint8_t * DHT22_get_hum_string(void);
  * @param	Tiempo en ms a esperar
  */
 void delay_ms(uint32_t delay);
+
+/**
+ * @brief	Verificar status del DHT22
+ * @return	Ver "struct DHT22_sensor.status"
+ */
+uint8_t DHT22_get_status(void);
+
 
 #endif /* DHT22_INC_DHT22_H_ */
