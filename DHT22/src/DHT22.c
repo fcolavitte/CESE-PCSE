@@ -307,10 +307,10 @@ static void decodificar(void){
  * @return	True si byte de paridad coincide, sino False.
  */
 static bool_t comrpobar_datos(void){
-	uint32_t suma_bytes = _DHT22.data.crude % 256;
-	suma_bytes += (_DHT22.data.crude/256) % 256;
-	suma_bytes += (_DHT22.data.crude/65536) % 256;
-	suma_bytes += (_DHT22.data.crude/16777216) % 256;
+	uint32_t suma_bytes = _DHT22.data.crude & 0xff;
+	suma_bytes += (_DHT22.data.crude>>(8*1)) & 0xff;
+	suma_bytes += (_DHT22.data.crude>>(8*2)) & 0xff;
+	suma_bytes += (_DHT22.data.crude>>(8*3)) & 0xff;
 	if((uint8_t)suma_bytes==_DHT22.data.validation){
 		_DHT22.status = DHT_OK;
 		return 1;
